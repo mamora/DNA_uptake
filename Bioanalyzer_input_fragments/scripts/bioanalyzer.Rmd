@@ -1,0 +1,286 @@
+---
+title: "Bioanalyzer analysis of input samples"
+author: "Marcelo Mora"
+date: "6 de marzo de 2017"
+output: html_document
+---
+
+
+#Objective
+
+The objective of this analysis is to analyze the bioanalyzer data in order to estimate the size distribution of the input DNA samples  
+
+
+#Strategy
+
+The first step is to estimate the migration time of each size band in the bioanalyzer size standard ladder. 
+
+image: ![](C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/ladder.png) 
+
+Once migration time of each ladder band has been estimated I will plot migration time over the base pairs (based on ladder band sizes)
+
+
+```{r,  message= FALSE, warning = FALSE}
+
+#load functions and libraries
+source("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/bio_functions.R")
+
+#########load ladder band sizes and migration times########## 
+ladder_sizes<- c(50,100,300,500,700,1000,1500,2000,3000,5000,7000,10380,17000)
+
+migration_time<- c(35,38,50,60,67,72.5,75.8,77.2,80,82.5,85,88,90) 
+#############################################################
+
+#make a dataframe
+cal_curve<- data.frame(ladder_sizes, migration_time)
+
+
+cal_curve$log_time<- log(migration_time)
+
+#check dataframe
+str(cal_curve)
+
+p <- ggplot(aes(x =migration_time, y =ladder_sizes), data = cal_curve) +
+  geom_point()+
+  geom_smooth(method = "loess", colour = "black") +
+  scale_y_log10()+
+   labs(x = "migration time in seconds", y = "base pairs") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5))
+
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/curve.png", width = 50, height = 30, units = "cm")  
+
+
+p #load plot
+
+
+```
+
+
+Now that I now that the local polynomial regression fitting curve (loess) does a decent job fitting the points of the curve, I can apply this model to the data and then predict the base pair size for each input according to their migration times. 
+
+Now I will fit the loess model to the data and then test test if the predict function would help me estimate base pairs from migration times
+
+```{r}
+
+#making a loess model to my data so later I can predict the base pairs based on migration times using the loess model
+model <- loess(ladder_sizes ~ migration_time, data = cal_curve)  
+
+#making fake migration time to test is the predicted function worked
+
+fake_times<- c(50, 75, 78, 80, 60)
+
+#predicting the base pairs for the fake migration times
+predict(model, newdata = fake_times)
+
+
+
+```
+
+
+##Sample names
+
+I need to load the table with the samples names.
+
+
+```{r}
+
+#load table with samples names
+periDNA<- read.table("C:/Users/marcelo/Dropbox/uptake/Everything_else/summary/periDNA.txt", header=TRUE, comment.char="")
+
+datatable(periDNA, options = list(pageLength = 5))
+
+
+```
+
+
+Now I need to load the input data and build an interactive table with the data. 
+
+##NP long fragment bioanalyzer data
+
+
+```{r}
+#load NP 6kb input bioanalyzer data
+UP13<- read.csv(file = "C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/input_excel/UP13.csv")
+
+```
+
+
+*NP long fragment data distribution size of sheared DNA*
+
+Now to build the figure I will predict the base pairs of the input based on the each migration time using the fitted loess model on the ladder curve
+
+```{r, message= FALSE, warning = FALSE}
+
+#predicting the base pairs for the input migration times
+UP13$bases<- predict(model, newdata = UP13$Time)
+
+p <- ggplot(aes(x = bases, y = Value), data = UP13) +
+  geom_point()+
+  geom_smooth(method = "loess", span = 0.2)+ #span controls the amount of smoothing
+  scale_x_continuous(breaks = c(1000,3000,5000,7000,10000,15000), expand = c(0, 0))+
+  ggtitle("Fragment distribution of NP input large fragments") +
+  labs(x = "base pairs", y = "fluorescence") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 16, color = "black"))
+
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/UP13.png", width = 50, height = 30, units = "cm")  
+
+p
+
+
+```
+
+Now I need to repeat all the procedure for the rest of the input samples. Also I need to calculate the relative numbers of fragments. This will be done by dividing fluorecence over base pairs
+
+To do this I will:
+
+1. make a function in which I load all the input bioanalyzer data as a list
+2. add the sample names to the input data list
+3. predict the base pairs based on the migration times using the loess function model of the ladder data
+4. calculate the relative number of molecules
+5. plot all the input samples
+
+```{r, warning = FALSE}
+
+#  1. make a list of dataframes where each dataframe is an input sample
+l.df<- setNames(lapply(ls(pattern="UP[0-9]+"), function(x) get(x)), ls(pattern="UP[0-9]+"))
+
+l.df<- add.names(l.df)  #2. add sample name to each dataframe
+
+l.df<- add.bases(l.df) #3. predicting the base pairs for the input migration times
+
+l.df<- add.rel_molecules(l.df) # 4.calculate the relative number of molecules by dividing fluorecence by base pairs
+
+
+```
+
+Now I have a list with all input data, but ggplot won't accept list objects so I will transform the list into a lond dataframe
+```{r}
+
+d.df<- ldply(l.df, rbind) #bind all dataframes of a list into one big dataframe with all samples
+
+
+```
+
+```{r, message= FALSE, warning = FALSE}
+
+# 5. Plot all input data. 
+p0 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+  scale_x_continuous(limits = c(1000,15000), expand = c(0, 0))+
+  scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of large input fragments") +
+  labs(x = "base pairs", y = "Relative # of frag") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/large.png", width = 50, height = 30, units = "cm")  
+
+p1 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+  scale_x_continuous(limits = c(0,1200), breaks = c(0,100,300,500,700,1000,1200), expand = c(0, 0))+
+    scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of short input fragments") +
+  labs(x = "base pairs", y = "Relative # of frag") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/small.png", width = 50, height = 30, units = "cm")  
+
+p2 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+  scale_x_continuous(limits = c(0,15000), breaks = c(0,1000,2500,5000,10000,15000), expand = c(0, 0))+
+    scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of all input fragments") +
+  labs(x = "base pairs", y = "Relative # of frag") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/input_all.png", width = 50, height = 30, units = "cm")  
+
+plot_grid(p0,p1,p2, ncol = 1, align = 'v')
+
+```
+
+Now I will plot the same picture but including the fluorescence instead of the relative number of fragments
+
+```{r, message= FALSE, warning = FALSE}
+
+p <- ggplot(aes(x = bases, y = Value), data = UP13) +
+  geom_point()+
+  geom_smooth(method = "loess", span = 0.2)+ #span controls the amount of smoothing
+  scale_x_continuous(breaks = c(1000,3000,5000,7000,10000,15000), expand = c(0, 0))+
+  ggtitle("Fragment distribution of NP input large fragments") +
+  labs(x = "base pairs", y = "fluorescence") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 16, color = "black"))
+
+
+# 5. Plot all input data. 
+p0 <- ggplot(aes(x = bases, y =Value, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+   scale_x_continuous(limits = c(0,15000), breaks = c(0,1000,3000,5000,7000,10000,15000), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,300))+
+  scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of large input fragments") +
+  labs(x = "base pairs", y = "fluorescence") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+
+p1 <- ggplot(aes(x = bases, y =Value, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+  scale_x_continuous(limits = c(1000,15000), breaks = c(1000,3000,5000,7000,10000,15000), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,300))+
+    scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of short input fragments") +
+  labs(x = "base pairs", y = "fluorescence") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+
+p2 <- ggplot(aes(x = bases, y =Value, color = sample), data = d.df) +
+  geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
+  scale_x_continuous(limits = c(0,1200), breaks = c(0,250,500,700,1000,1200), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,100))+
+    scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+    ggtitle("Fragment distribution of all input fragments") +
+  labs(x = "base pairs", y = "fluorescence") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
+        axis.title = element_text(face = "bold", size = 12, color = "black"))
+
+
+plot_grid(p0,p1,p2, ncol = 1, align = 'v')
+
+
+
+```
+
+

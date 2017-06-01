@@ -1,0 +1,226 @@
+---
+title: "Finding the centre of the USS"
+author: "Marcelo Mora"
+date: "15 de agosto de 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Objective
+
+The objective of this analysis is to assess which position correspond the highest DNA uptake in each USS peak.  Analisis will use this position to centralize uss from forward and reverse strands.
+
+```{r load data, message=FALSE, warning=FALSE ,echo = FALSE}
+
+
+# All this dataframes are available by request. Contact redfield@zoology.ubc.ca
+
+################Load Functions################################
+
+source("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/peak finder/pssmFunctions1.R")
+
+##########Load list of uptake ratios per genomic position#########################
+
+uptake<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/uptake_recal.csv") #save file
+
+
+###########Load list of positions identified as USS##############################
+
+
+Uptake.uss.10.list<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/Uptake.uss.list.cut.10.csv")
+
+
+```
+
+
+#Strategy#
+
+First I will plot the uptake map of a region of the genome for the small fragment size data from NP, and I will indicate the position of USS central C (position 8 of the uptake motif) with a line 
+
+
+First, step in this analysis is to get the list of isolated peak positions 
+
+
+```{r load isolated peaks}
+
+isolated.uss.10.list<-read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/peak finder/output/lists/isolated.uss.10.list.csv")
+
+head(isolated.uss.10.list)
+
+```
+
+Next step is to select one orientation which will be the **forward** strand
+
+```{r select one orientation}
+
+small.t<- isolated.uss.10.list[isolated.uss.10.list$strand == "w",]
+
+small.t.c<- isolated.uss.10.list[isolated.uss.10.list$strand == "c",]
+
+head(small.t)  
+
+head(small.t.c)  
+
+```
+
+
+Now I am going to choose only USS with more than 3 uptake ratio.
+
+**Note**: isolated USS with uptake higher than 3 and on the forward strand were used
+
+```{r choose isolated USS with high uptake}
+
+small_high_up<- small.t[which(small.t$keyup.re > 3), ]
+
+small_high_up.c<- small.t.c[which(small.t.c$keyup.re > 3), ]
+
+head(small_high_up)
+
+
+```
+
+
+
+Next, I will built a matrix of each isolated USS with more than 3 uptake (rows) and the uptake ratio of that USS minus/plus 50 bases (columns)
+
+```{r built matrix, echo = FALSE}
+
+build_ratio_matrix = function( lrg=large , sml=small.c , radius=50 )
+{
+  nr = length(sml) 
+  nc = 1+2*radius  
+  out = matrix( rep(NA,nr*nc) , ncol=nc , nrow=nr ) 
+  for( i in 1:nr ) 
+  {
+    out[ i ,] = lrg$ratio[ max(1,sml[i]-radius):min(nrow(lrg),sml[i]+radius) ] 
+  } 
+  rownames(out) = as.character( sml ) 
+  return( out ) 
+}
+
+
+
+```
+
+First concatenate the first 500 bases to the end to prevent errors and deal with circularity
+```{r, echo = FALSE}
+
+uptake.f<- uptake[1:500,]
+
+
+dist.end<- (max(Uptake.uss.10.list$keypos) - length(uptake$pos))  #calculate distance from last USS in the genome to the position 1
+
+uptake.c<- rbind(uptake, uptake.f)  # adjust distance to the end to circularize
+
+
+#subset the data that will be used to built a matrix of each uss +- 500 bases
+large<- uptake.c[,c("pos","ratio")]
+
+small<- small_high_up[,"USS.pos"]  
+
+
+# make vectors to build the matrix
+al<- c(500:1,0,1:500) #make a vector of numbers from 500 to 0 to 500
+
+skew<- c(rep("Left",500),"centre",rep("Right",500)) #make a vector of words "left, centre, right". This words will be factors used to overlaplines in the following plot 
+
+
+
+```
+
+
+**Calculate the average uptake ratio of each USS +- 500 bases for Forward strand for a given position in the USS. **
+
+I started with position 15 but this section of the code can be repeated for each of the 30 positions in the motif.
+
+```{r}
+
+USS.pos<- 15 #chose USS position to use as a centre. This number can be changed from 1 to 30
+
+small.w<- small_high_up[,"USS.pos"]+(USS.pos -1) #get all positions for each uss for the given USS.pos chosen
+
+ratio_matrix.w = build_ratio_matrix(radius=500, sml = small.w) #make matrix centering on the USS.pos chosen
+
+dim(ratio_matrix.w) #check dimensions. Should be 1001 columns (500+1+5000)
+
+mean_col.w<- apply(ratio_matrix.w,2,mean, na.rm = TRUE) #calculate mean for each position
+
+skew.test.w<- data.frame(pos = al, ratio = mean_col.w, align = skew) #make a dataframe based on the matrix built before. GGplot won't work with a matrix
+
+View(skew.test.w)
+
+# plot positions on the left of the USS overlaping with positions in the right.
+
+
+#Important: Both lines should overlap perfectly when the highest point of uptake is found
+
+p <- ggplot(aes(x = pos, y = ratio, colour = align), data = skew.test.w) +
+  geom_line() +
+  scale_x_continuous(expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 4), expand = c(0, 0))+
+  labs(x = "USS pos 15 +- 500 bases", y = "uptake ratio") +
+  ggtitle(" Evaluate any skew of the curve of USS +- 500 bases in the forward strand") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5))
+
+p
+
+
+
+```
+
+
+
+**Calculate the average uptake ratio of each USS +- 500 bases for Reverse strand for a given position in the USS. **
+
+I started with position 15 but this section of the code can be repeated for each of the 30 positions in the motif.
+
+
+```{r}
+
+USS.pos<- 15 #chose USS position to use as a centre. This number can be changed from 1 to 30
+
+small.c<- small_high_up[,"USS.pos"]+ 30 - USS.pos #get all positions for each uss for the given USS.pos chosen
+
+ratio_matrix.c = build_ratio_matrix(radius=500, sml = small.c) #make matrix centering on the USS.pos chosen
+
+dim(ratio_matrix.c) #check dimensions. Should be 1001 columns (500+1+5000)
+
+mean_col.c<- apply(ratio_matrix.c,2,mean, na.rm = TRUE) #calculate mean for each position
+
+skew.test.c<- data.frame(pos = al, ratio = mean_col.c, align = skew) #make a dataframe based on the matrix built before. GGplot won't work with a matrix
+
+
+# plot positions on the left of the USS overlaping with positions in the right.
+
+
+#Important: Both lines should overlap perfectly when the highest point of uptake is found
+
+p <- ggplot(aes(x = pos, y = ratio, colour = align), data = skew.test.c) +
+  geom_line() +
+  scale_x_continuous(expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 4), expand = c(0, 0))+
+  labs(x = "USS pos 15 +- 500 bases", y = "uptake ratio") +
+  ggtitle(" Evaluate any skew of the curve of USS +- 500 bases in the reverse strand") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5))
+
+p
+
+
+
+```
+
+
+**Note central point for forward strand reached at position 17 of the motif**
+
+**Note central point for reverse strand reached at position 17/18 of the motif**
+
