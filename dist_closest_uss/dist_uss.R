@@ -8,14 +8,14 @@
 
 # Name the path of the working directory; 
 ### Set the path from your computer ###
-whereami <- "C:/Users/marcelo/Dropbox/documentos phd/experiments/virtual experiments/Vex4/tutorialRjosh/Tutorial1/" # Where these files are located
+whereami <- "C:/Users/marcelo/Documents/DNA_uptake" # Where these files are located
 
 # Set working directory
 setwd(whereami)
 
 # Load the various functions used below from the "pssmFunctions.R" file,
 # as if the whole file were copy-pasted to the R command-line
-source("pssmFunctions1.R")
+source("./helper_functions/pssmFunctions1.R")
 
 
 NP.uptake.ratio<- read.csv("./datasets/NP.uptake.ratio.csv") #load uptake ratios np short fragments
@@ -41,7 +41,7 @@ NP.uptake.ratio$close.USS.np<- close.USS.np
 
 PittGG.uptake.ratio$close.USS.gg<- close.USS.gg
 
-#save
+#save files
 
 write.csv(NP.uptake.ratio, "./datasets/NP.uptake.ratio.csv")
 

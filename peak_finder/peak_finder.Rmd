@@ -1,0 +1,54 @@
+---
+title: "peak_finder"
+author: "Marcelo Mora"
+date: "7 de junio de 2017"
+output: html_document
+---
+
+Our data consists in peaks of coverage that increase and decrease per genomic position depending on the amount of DNA taken up per position by the bacteria. We have sequences the amount of periplamic DNA from Haemophilus influenzae competents cells that have taken up sheared input DNA fragments from two different average sizes (0.25kb and 6kb). In the samples that took up the 0.25kb average fragments, this groups of positions that have a lot of coverage, product of DNA uptake, have the shape of peaks.
+
+The objective is to estimate the exact genomic positions that represent the highest point of each of these uptake peaks.
+
+The approach taken is to use a Peakfinder script adapted from:
+
+[link]http://stats.stackexchange.com/questions/36309/how-do-i-find-peaks-in-a-dataset
+
+The function described in the link depends on two parameters "w" and "span".  As explained on the webpage, the function works by smoothing the data  to then find local peaks by comparing local maxima with the smoothed points. By changing these parameters (w = 200, span = 0.02), I was able to optimize the function finding each local peak within the first 10 kb of the genome. 
+
+*WARNING*
+
+This script cannot be used, as described in the webpage, to search the entire genome. The script will behave worse, the longer the fragment is fed to the script.
+
+To solve this I will:
+
+1. break down the genome into 10kb pieces with 2kb overlaps.
+2. Run a modified version of the script
+3. generate 2 lists: one with all tentative peaks including peaks duplicated in all overlaps; and another list where peaks are no duplicated since tentative peaks in the the 3' end overlaping region (to use a DNA analogy) will be be deleted.
+4. Edges between each overlaping region will be compared in both lists to search for posible edge effects. If an edge effect is found then it will be corrected
+
+See below figures to understand posible edge effects:
+
+
+There are three possible situations that can happen if the split is located near an uptake peak
+
+image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo/peak_finder/peak_finder_post/overlap2.png)
+
+1. peaks are called on opposite sites of the split, close to the edge in each chunck. Since this areas are omitted (grey squares in the plot) then the final list will not include a peak at that position.
+
+2. peaks are called on opposite sites away from the split, far away from the edge in each chunck. In this case the final lost will include 2 peaks very close to each other, instead of one. 
+
+3. peaks are called at the same site of the split, far away from the edge in one chunck and close to the edge in the other. In this case only one peak will be considered in the list.
+
+From this 3 scenarios point 1 and 2 will have to be dealed with checking the lists manually
+
+image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo//peak_finder/peak_finder_post/merge.png)
+
+
+
+
+
+
+
+
+Split the genome into 10kb chunks but using 2kb overlapping regions in the chuncks (14kb in total).
+
