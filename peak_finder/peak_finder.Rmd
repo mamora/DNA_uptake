@@ -5,6 +5,15 @@ date: "7 de junio de 2017"
 output: html_document
 ---
 
+
+```{r setup, include=FALSE}
+# Set the path of the working directory; 
+knitr::opts_knit$set(root.dir = '~/DNA_uptake')
+
+```
+
+
+
 Our data consists in peaks of coverage that increase and decrease per genomic position depending on the amount of DNA taken up per position by the bacteria. We have sequences the amount of periplamic DNA from Haemophilus influenzae competents cells that have taken up sheared input DNA fragments from two different average sizes (0.25kb and 6kb). In the samples that took up the 0.25kb average fragments, this groups of positions that have a lot of coverage, product of DNA uptake, have the shape of peaks.
 
 The objective is to estimate the exact genomic positions that represent the highest point of each of these uptake peaks.
@@ -23,7 +32,10 @@ To solve this I will:
 
 1. break down the genome into 10kb pieces with 2kb overlaps.
 2. Run a modified version of the script
-3. generate 2 lists: one with all tentative peaks including peaks duplicated in all overlaps; and another list where peaks are no duplicated since tentative peaks in the the 3' end overlaping region (to use a DNA analogy) will be be deleted.
+3. generate 2 lists: one with all tentative peaks including overlaps, and another list with tentative peaks excluding overlaping regions 
+
+image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo/peak_finder/peak_finder_post/overlap2.png)
+
 4. Edges between each overlaping region will be compared in both lists to search for posible edge effects. If an edge effect is found then it will be corrected
 
 See below figures to understand posible edge effects:
@@ -31,7 +43,7 @@ See below figures to understand posible edge effects:
 
 There are three possible situations that can happen if the split is located near an uptake peak
 
-image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo/peak_finder/peak_finder_post/overlap2.png)
+
 
 1. peaks are called on opposite sites of the split, close to the edge in each chunck. Since this areas are omitted (grey squares in the plot) then the final list will not include a peak at that position.
 
@@ -44,11 +56,78 @@ From this 3 scenarios point 1 and 2 will have to be dealed with checking the lis
 image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo//peak_finder/peak_finder_post/merge.png)
 
 
+# Load the data and packages
+
+```{r}
+
+library(ggplot2)
+
+uptake<- read.csv("./datasets/uptake_recal.csv") #read file with positions and ratios (created in Ve4_Josh_task.R)
+
+source("./helper_functions/peak_finder_functions.R")
+
+
+```
+
+
+# Split the genome into 10kb chunks but using 2kb overlapping regions in the chuncks (14kb in total).
+
+```{r}
+
+x<- split_pos(uptake)   #split the uptake file for positions
+y<- split_ratio(uptake) #split the uptake file for ratios
 
 
 
+```
+
+## Set peakfinder parameters
+
+```{r}
+#careful DO NOT MESS WITH THE PARAMETERS
+w = 200 #parameter  w = 200
+
+span = 0.02 #parameter span = 0.02
+
+cut = 0.2 #minimum uptake ratio to be removed
+
+
+```
 
 
 
-Split the genome into 10kb chunks but using 2kb overlapping regions in the chuncks (14kb in total).
+## list of peaks without overlaping regions 
+
+```{r}
+for(i in 1:191)
+{
+  h<- peakfinder(x[[i]], y[[i]], w, span, cut)  #run peakfinder 
+  end<- length(x[[i]])  #get the size of each chunck
+  peaks1<- data.frame(pos = h$pos, re.ratio = h$ratio) # dataframe of positions and ratios
+  g1<- x[[i]][2001:(end - 2000)]  #positions without overlaps
+  g2<- which(peaks1$pos %in% g1) #which peaks are located in the previous range of positions
+  peaks2<- peaks1[g2,] #get those peaks
+  peaks.overlap<- rbind(peaks.overlap, peaks2) #make a dataframe with all peaks excluding overlaps
+}
+
+```
+
+## lis of peaks with overlaping regions
+
+```{r}
+#create empty vectors to make the loop run
+h1<- c() 
+h2<- c()
+
+
+for(i in 1:191)
+{
+  h<- peakfinder(x[[i]], y[[i]], w, span, cut)  #run peakfinder 
+  h1<- c(h1,h$pos)
+  h2<- c(h2,h$ratio)  
+}
+
+peak.list.all<- data.frame(pos = h1, ratio = h2) #make a dataframe with peaks position and ratio
+
+```
 
