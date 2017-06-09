@@ -153,7 +153,7 @@ library(doBy)
 
 Up.USS.np.10.list<- orderBy(~USS.pos+strand+USS.score, data = Up.USS.np.10.list)
 
-write.csv(Up.USS.np.10.list, file="C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/Up.USS.np.10.list.csv", quote=FALSE) #save file
+write.csv(Up.USS.np.10.list, file="./datasets/Up.USS.np.10.list.csv", quote=FALSE) #save file
 
 
 

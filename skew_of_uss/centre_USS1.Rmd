@@ -5,14 +5,18 @@ date: "15 de agosto de 2016"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 
 ## Objective
 
 The objective of this analysis is to assess which position correspond the highest DNA uptake in each USS peak.  Analisis will use this position to centralize uss from forward and reverse strands.
+
+
+```{r setup, include=FALSE}
+# Set the path of the working directory; 
+knitr::opts_knit$set(root.dir = '~/DNA_uptake')
+
+```
+
 
 ```{r load data, message=FALSE, warning=FALSE ,echo = FALSE}
 
@@ -21,17 +25,17 @@ The objective of this analysis is to assess which position correspond the highes
 
 ################Load Functions################################
 
-source("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/peak finder/pssmFunctions1.R")
+source("./helper_functions/pssmFunctions1.R")
 
 ##########Load list of uptake ratios per genomic position#########################
 
-uptake<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/uptake_recal.csv") #save file
+uptake<- read.csv("./datasets/uptake_recal.csv") #read file with positions and ratios (created in Ve4_Josh_task.R)
 
 
 ###########Load list of positions identified as USS##############################
 
 
-Uptake.uss.10.list<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/Uptake.uss.list.cut.10.csv")
+Up.USS.np.10.list<- read.csv("./datasets/Up.USS.np.10.list.csv")
 
 
 ```
@@ -47,7 +51,7 @@ First, step in this analysis is to get the list of isolated peak positions
 
 ```{r load isolated peaks}
 
-isolated.uss.10.list<-read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/peak finder/output/lists/isolated.uss.10.list.csv")
+isolated.uss.10.list<-read.csv("./datasets/isolated.uss.list.csv")
 
 head(isolated.uss.10.list)
 
@@ -112,7 +116,7 @@ First concatenate the first 500 bases to the end to prevent errors and deal with
 uptake.f<- uptake[1:500,]
 
 
-dist.end<- (max(Uptake.uss.10.list$keypos) - length(uptake$pos))  #calculate distance from last USS in the genome to the position 1
+dist.end<- (max(Up.USS.np.10.list$keypos) - length(uptake$pos))  #calculate distance from last USS in the genome to the position 1
 
 uptake.c<- rbind(uptake, uptake.f)  # adjust distance to the end to circularize
 

@@ -99,6 +99,12 @@ cut = 0.2 #minimum uptake ratio to be removed
 ## list of peaks without overlaping regions 
 
 ```{r}
+
+h1<- c() 
+h2<- c()
+
+peaks.overlap<- data.frame(pos = h1, re.ratio = h2)
+
 for(i in 1:191)
 {
   h<- peakfinder(x[[i]], y[[i]], w, span, cut)  #run peakfinder 
@@ -109,6 +115,8 @@ for(i in 1:191)
   peaks2<- peaks1[g2,] #get those peaks
   peaks.overlap<- rbind(peaks.overlap, peaks2) #make a dataframe with all peaks excluding overlaps
 }
+
+write.csv(peaks.overlap, "./datasets/peak.overlap.csv")
 
 ```
 
@@ -128,6 +136,8 @@ for(i in 1:191)
 }
 
 peak.list.all<- data.frame(pos = h1, ratio = h2) #make a dataframe with peaks position and ratio
+
+write.csv(peaks.list.all, "./datasets/peak.list.all.csv")
 
 ```
 
