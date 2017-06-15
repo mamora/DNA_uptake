@@ -1,0 +1,176 @@
+---
+title: "syntenic genomic regions"
+author: "Marcelo Mora"
+date: "10 de junio de 2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+# Set the path of the working directory; 
+knitr::opts_knit$set(root.dir = '~/DNA_uptake')
+
+```
+
+
+The objective of this script is to find a sintenic region between PittGG and 86-028NP that could be used to use as a representative example to plot uptake maps. Ideally we need a syntenic region without indels or inversions. 
+
+
+First I aligned the PittGG and 86-028NP genomic sequences using MAUVE software with **progressiveMAUVE** alignment.  
+
+This aligment produced colinear segments that were aligned between both genomes. 
+
+image: ![](~/DNA_uptake/syntenic_region_analysis/NP_GG.jpg) 
+
+From this alignment I chose the colinear segment 1 (yellow). This segment is chosen since t is the longest and it is not split  in different parts of the same genome.
+
+## Analysis done with bash, or in my case in Cygwin bash
+
+**this scripts cannot be run directly in rmarkdown, or maybe they can?  Run them in your bash or Cygwin termnal**
+
+The MAUVE alignment create 4 file. One of those files, the one without a extension, has all the colinear blocks. I took that file and I split each of the blocks in separate files
+
+
+```{bash eval=FALSE}
+
+csplit --digits=3  --quiet --prefix=colinear testing_script "/=/+1" "{*}"
+
+```
+
+
+Next I extracted the names and te horder in which the sequences included. This can be done manually or with the script below 
+
+
+```{bash eval=FALSE}
+grep -o -P '(?<=datasets\\).*(?=.f)' colinear001 > names.txt
+
+#where "datasets\" is the folder where the fasta files are stored and ".f" is the beggining of the fasta file extension (I had two extensions .fasta and .fa, so I used just the begining)
+
+#if the fasta files are saved outside the datasets folder the script won't work
+
+```
+
+Now I extracted the genomic coordinates of the begining and end of the colinear block
+
+```{bash eval=FALSE}
+
+grep -o -P '(?<=>).*(?=C)' colinear001 > coord.txt
+
+
+```
+
+Finally, extracted begining and end coordinates in different files to import them into R  
+
+```{bash eval=FALSE}
+
+grep -o -P '(?<=:).*(?=-)' coord.txt > left.txt
+
+ grep -o -P '(?<=-)[0-9]*(?= +)' coord.txt > right.txt
+
+```
+
+## R analysis
+
+```{r setup, include=FALSE}
+
+### YOUR PATH IS DIFFERENT THAN THIS ###
+whereami <- "C:/cygwin64/home/marcelo/mauve/" # Where these files are located
+
+# Set directory
+setwd(whereami)
+
+
+# Load the various functions used below from the "pssmFunctions.R" file,
+# as if the whole file were copy-pasted to the R command-line
+source("./helper/pssmFunctions1.R")
+
+source("./helper/functions.R")
+
+
+#This next step involves reading with R the colinear aligned sequences from both genomes. This step requires extracting manualy the sequences, from the colinear001 file, and saving them in separate files. 
+
+# Name the sites file, and genome reference file
+np.block    <- "np.fasta" # colinear fasta to the NP genome
+PittGG.block    <- "PittGG.fasta" # colinear fasta to the PittGG genome
+
+# Read in genome
+colinear.np <- read.genome(np.block) # read fasta with seqinr, then massage
+
+# Read in genome
+colinear.PittGG <- read.genome(PittGG.block) # read fasta with seqinr, then massage
+
+
+
+```
+
+
+
+Now I need to make a dataframe with the genomic position limits of the aligned block. This positions were obtained from the alinment file of Mauve
+
+
+Start with the aligned positions of colinear1, but the script can be adapter fr any colinear segment
+
+
+```{r}
+
+#get the start sequence position of the aligned sequences
+left<- read.delim("./left.txt", header = FALSE)[,1]
+
+str(left)
+
+
+#get the end sequence position of the aligned sequences
+right<- read.delim("./right.txt", header = FALSE)[,1]
+
+str(right)
+
+
+# get the strain names
+samples<- read.delim("./names.txt", header = FALSE)
+
+str(samples)
+
+samples
+
+#make a dataframe with the genomic positions limits corresponing to the aligned sequences 
+block1<- data.frame(samples = samples, left = left, right = right)
+
+
+block1$right-block1$left  # are sizes the same
+
+
+```
+
+Next I will arrange the aligned colinear sequences into a matrix
+
+
+```{r}
+#create a matrix with sequences as numbers and genomic positions
+m3<- synthetic(block = block3,PittGG.block, np.block)
+
+# add a first row
+first.row<- c("NP_sequence", "PittGG_sequence", "NP_positions", "PittGG_positions")
+
+# Add rownames
+rownames(m3) <-first.row
+
+View(m3[1:4,1:20]) # NP sequence in reverse complement
+
+```
+
+
+
+
+```{r}
+
+###############Uptake map of synthenic region#######################
+
+
+block3.d<- syn_to_data(m3)
+
+str(block3.d)
+
+
+```
+
+
