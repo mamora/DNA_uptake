@@ -73,18 +73,11 @@ grep -o -P '(?<=:).*(?=-)' coord.txt > left.txt
 
 ```{r setup, include=FALSE}
 
-### YOUR PATH IS DIFFERENT THAN THIS ###
-whereami <- "C:/cygwin64/home/marcelo/mauve/" # Where these files are located
-
-# Set directory
-setwd(whereami)
-
-
 # Load the various functions used below from the "pssmFunctions.R" file,
 # as if the whole file were copy-pasted to the R command-line
-source("./helper/pssmFunctions1.R")
+source("~/DNA_uptake/helper_functions/pssmFunctions1.R")
 
-source("./helper/functions.R")
+source("~/DNA_uptake/helper_functions/functions_syntenic.R")
 
 
 #This next step involves reading with R the colinear aligned sequences from both genomes. This step requires extracting manualy the sequences, from the colinear001 file, and saving them in separate files. 
@@ -99,6 +92,7 @@ colinear.np <- read.genome(np.block) # read fasta with seqinr, then massage
 # Read in genome
 colinear.PittGG <- read.genome(PittGG.block) # read fasta with seqinr, then massage
 
+length(colinear.np[[1]]) - length(colinear.PittGG[[1]]) # checking that the sequences are properly aligned --> result must be 0
 
 
 ```
@@ -135,9 +129,7 @@ samples
 #make a dataframe with the genomic positions limits corresponing to the aligned sequences 
 block1<- data.frame(samples = samples, left = left, right = right)
 
-
-block1$right-block1$left  # are sizes the same
-
+block1$right[2] - block1$left[2]
 
 ```
 
@@ -146,29 +138,89 @@ Next I will arrange the aligned colinear sequences into a matrix
 
 ```{r}
 #create a matrix with sequences as numbers and genomic positions
-m3<- synthetic(block = block3,PittGG.block, np.block)
+m<- synthetic(block = block1,colinear.PittGG, colinear.np)
 
 # add a first row
 first.row<- c("NP_sequence", "PittGG_sequence", "NP_positions", "PittGG_positions")
 
 # Add rownames
-rownames(m3) <-first.row
+rownames(m) <-first.row
 
-View(m3[1:4,1:20]) # NP sequence in reverse complement
+View(m[1:4,1:20]) 
 
 ```
 
 
-
+Making then matrix of aligned sequences a dataframe to plot
 
 ```{r}
 
 ###############Uptake map of synthenic region#######################
 
 
-block3.d<- syn_to_data(m3)
+block.d<- syn_to_data(m)
 
-str(block3.d)
+str(block.d)
+
+
+m3.up<- uptake[m3[3,1]:m3[3,20001],]
+
+#make dataframe with position x in 0.4 and peaks
+
+peak.list.partial<- peak.list.c_2[peak,]
+
+peak.list.partial$pos.4<- rep(0.3, length(peak.list.partial$pos))               
+
+peak.list.partial$pos
+
+
+
+
+test<- which(Uptake.uss.10.list$USS.pos %in% m3.up$pos)
+
+uss.list.partial<- Uptake.uss.10.list[test,]
+
+uss.list.partial$pos.0<- rep(0, length(uss.list.partial$USS.pos))               
+
+uss.list.partial$USS.pos
+  
+
+  p <- ggplot() +
+  geom_point(aes(x = pos, y = ratio), colour = "blue", data = uptake[m3[3,1]:m3[3,20001],], shape = 20, size = 1) +
+  geom_point(aes(x = USS.pos, y = pos.0 ), colour = "red", data = uss.list.partial, shape = 20, size = 4) +  
+  geom_point(aes(x = pos, y = pos.4 ), colour = "green", data = peak.list.partial, shape = 20, size = 4) +  
+  scale_y_continuous(limits = c(0, 6), expand = c(0, 0))+
+  scale_x_continuous(expand = c(0, 0))+
+  labs(x = "genome positions", y = "uptake ratio per position") +
+  ggtitle(" uptake genomic map of mean uptake ratios from NP small fragment donor") +
+  theme() +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5))
+
+
+
+
+p <- ggplot() +
+  geom_point(aes(x = pos, y = UP15), colour = "grey", data = np.only.raw.reads[m3[3,1]:m3[3,20001],], shape = 20, size = 1) +
+  geom_point(aes(x = pos, y = mean.small), colour = "black", data = np.only.raw.reads[m3[3,1]:m3[3,20001],], shape = 20, size = 1) +  
+  scale_y_continuous(limits = c(0, 2000), expand = c(0, 0))+
+  scale_x_continuous(expand = c(0, 0))+
+  labs(x = "genome positions", y = "uptake ratio") +
+  ggtitle(" uptake genomic map of mean uptake ratios from NP small fragment donor") +
+  theme() +
+  theme(panel.border = element_blank(),
+        legend.key = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank(),
+        panel.grid = element_blank(),
+        panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_rect(fill = "transparent",colour = NA))
+
 
 
 ```
