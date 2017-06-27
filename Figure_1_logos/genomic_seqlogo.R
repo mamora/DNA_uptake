@@ -13,14 +13,14 @@
 
 # Name the path of the working directory; 
 ### YOUR PATH IS DIFFERENT THAN THIS ###
-whereami <- "C:/Users/marcelo/Dropbox/uptake/task_list_marcelo/datasets/" # Where these files are located
+whereami <- "~/DNA_uptake" # Where these files are located
 
 
 # Set directory
 setwd(whereami)
 
 # Name the sites file, and genome reference file
-sites    <- "Hin2206sites.txt" # From Rosie's Gibbs sampling of rd.fa
+sites    <- "datasets/Hin2206sites.txt" # From Rosie's Gibbs sampling of rd.fa
 
 list.files(whereami) #see files in directory
 
@@ -29,7 +29,8 @@ library(RColorBrewer)
 
 # Load the various functions used below from the "pssmFunctions.R" file,
 # as if the whole file were copy-pasted to the R command-line
-source("../functions/pssmFunctions1.R")
+source("helper_functions/pssmFunctions1.R")
+source("helper_functions/seqLogoFunction_y_axis.R")
 
 
 #################################################################
@@ -56,15 +57,12 @@ p<- makePWM(pfm)
 ######   Remake the Uptake motif logo              ########         
 ###########################################################
 
-
-setwd("C:/Users/marcelo/Dropbox/ Uptake ms/DegenerateStuff/")
-
 #### Contains a bunch of functions (probably hacky)
 # Main one is SeqLogo2, which is my hack to get the right object 
-load("Outputs/functionsMarch11.R")
+load("helper_functions/seqLogoFunction2.R")
 
-inpPCM <- read.csv("Outputs/inppcm.csv", row.names=1)
-perPCM <- read.csv("Outputs/perpcm.csv", row.names=1)
+inpPCM <- read.csv("Figure_1_logos/inppcm.csv", row.names=1)
+perPCM <- read.csv("Figure_1_logos/perpcm.csv", row.names=1)
 
 # This gets the consensus of the right 31 bases and makes a numeric string too.
 consensus <- "ATGCCAAAGTGCGGTTAATTTTTACAGTATTTTTGGGTTCGA"
