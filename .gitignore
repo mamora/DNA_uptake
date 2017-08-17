@@ -1,1 +1,4 @@
 datasets/
+syntenic_region_analysis/pilon_mauve/
+syntenic_region_analysis/NP.fasta
+syntenic_region_analysis/PittGG.fasta

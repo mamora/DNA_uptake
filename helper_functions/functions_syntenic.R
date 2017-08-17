@@ -1,12 +1,15 @@
 
-# load uptake ratio dataframes for PittGG and NP
+#############################load packages##############################
+library(ggplot2)
+library(dplyr)
+library(data.table)
+library(scales)
 
-PittGG.uptake.ratio<- read.csv("C:/Users/marcelo/Dropbox/uptake/Everything_else/Marcelo scripts and files/PittGG_maps/PittGG.uptake.ratio.csv") #save file
+# load dataframes (OPTIONAL CODE)
+Uptake.ratio.gg<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.gg.csv") #load new input samples fro UP01   
+Uptake.ratio.np<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.np.csv") #load new input samples fro UP01   
 
-np.uptake<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/uptake_recal.csv") #save file
 
-
-uptake.kb.6<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/uptake.kb.6.csv") #save file
 
 
 #####################################################################
@@ -25,7 +28,7 @@ np.block.size<- length(np.block[[1]])
 
 pos <- np.block #renamed
 
-p<- c(block$left[1]:block$right[1]) # make a vector with genomic positions of the block 
+p<- c(block$left[2]:block$right[2]) # make a vector with genomic positions of the block 
 
 positions.np<- c(1:length(pos[[1]])) #make a vector of the same size as the block
 
@@ -44,7 +47,7 @@ gaps<- which(PittGG.block [[1]] == "-")
 nongaps<- which(PittGG.block [[1]] != "-") 
 GG.block.size<- length(PittGG.block [[1]])
 pos <- PittGG.block 
-p<- c(block$left[2]:block$right[2]) # make a vector with genomic positions of the block 
+p<- c(block$left[1]:block$right[1]) # make a vector with genomic positions of the block 
 positions.GG<- c(1:length(pos[[1]])) # make a vector of the same size as the block
 positions.GG[nongaps]<- p #fill the position vector with genomic positions for positions without gaps
 g<- rep(0,length(gaps))  # create a vector of gaps of value 0
@@ -81,21 +84,36 @@ size<- dim(m)[2]
 np.up<- rep(NA, size)
 
 # get uptake ratios of non-gaps positions for NP
-np.ratio.nongaps<- np.uptake$ratio[pos.np]
+np.ratio.nongaps.s<- Uptake.ratio.np$ratio_short[pos.np]
 
 # get uptake ratios of non-gaps positions for PittGG
-GG.ratio.nongaps<- PittGG.uptake.ratio$ratio_small[pos.gg]
+GG.ratio.nongaps.s<- Uptake.ratio.gg$ratio_short[pos.gg]
+
+# get uptake ratios of non-gaps positions for NP
+np.ratio.nongaps.l<- Uptake.ratio.np$ratio_long[pos.np]
+
+# get uptake ratios of non-gaps positions for PittGG
+GG.ratio.nongaps.l<- Uptake.ratio.gg$ratio_long[pos.gg]
+
+
 
 num<- c(1:size)
 
-#create a dataframe fot for making an uptake figure so far with only NA instead of ratios
-block.synthenic<- data.frame(relative_pos = num, NP_uptake = np.up , PittGG_uptake = np.up)
+#create a dataframe to make an uptake figure so far with only NA instead of ratios
+block.synthenic<- data.frame(relative_pos = num, NP_uptake.short = np.up , PittGG_uptake.short = np.up, NP_uptake.long = np.up , PittGG_uptake.long = np.up)
 
 
 #replace NA's with uptake ratios for non-gaps positions
-block.synthenic$NP_uptake[(which(m["NP_sequence",] != 6))]<- np.ratio.nongaps
 
-block.synthenic$PittGG_uptake[(which(m["PittGG_sequence",] != 6))]<- GG.ratio.nongaps
+block.synthenic$NP_uptake.short[(which(m["NP_sequence",] != 6))]<- np.ratio.nongaps.s
+
+block.synthenic$PittGG_uptake.short[(which(m["PittGG_sequence",] != 6))]<- GG.ratio.nongaps.s
+
+block.synthenic$NP_uptake.long[(which(m["NP_sequence",] != 6))]<- np.ratio.nongaps.l
+
+block.synthenic$PittGG_uptake.long[(which(m["PittGG_sequence",] != 6))]<- GG.ratio.nongaps.l
+
+
 
 return(block.synthenic)
 

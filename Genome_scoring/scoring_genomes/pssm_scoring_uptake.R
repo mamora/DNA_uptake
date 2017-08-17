@@ -10,10 +10,10 @@
 
 # Name the path of the working directory; 
 ### Set the path from your computer ###
-whereami <- "C:/Users/marcelo/Dropbox/documentos phd/experiments/virtual experiments/Vex4/tutorialRjosh/Tutorial1/" # Where these files are located
+whereami <- "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/" # Where these files are located
 
 # Name the sites file, and genome reference file
-fasta    <- "datasets/np.fa" # Reference fasta to the NP genome
+fasta    <- "datasets/np.pilon.fasta" # Reference fasta to the NP genome
 
 # Set working directory
 setwd(whereami)
@@ -23,11 +23,11 @@ list.files(whereami) #see files in directory
 
 # Load the various functions used below from the "pssmFunctions.R" file,
 # as if the whole file were copy-pasted to the R command-line
-source("pssmFunctions1.R")
+source("~/DNA_uptake/helper_functions/pssmFunctions1.R")
 
 #read uptake pssm matrix, based on Mell et al 2012 uptake motif
 
-uptake.pssm<- read.csv("datasets/degMotif_F.csv") # motif is loaded in a dataframe format, for the analysis a matrix format is needed.
+uptake.pssm<- read.csv("~/DNA_uptake/datasets/degMotif_F.csv") # motif is loaded in a dataframe format, for the analysis a matrix format is needed.
 
 
 View(uptake.pssm) #view the dataframe
@@ -109,16 +109,103 @@ str(np.uptake.scores)
 ### Warning: Somewhat slow ###
 
 # Get maximum score per pair of scores (w and c strands)
-np.uptake.scores$max    <- apply(np.uptake.scores, 1, max)
+np.uptake.scores$max  <- apply(np.uptake.scores, 1, max)
 
 # Get which strand had maximum score
 np.uptake.scores$strand <- max.strand(np.uptake.scores)
 
 View(np.uptake.scores) #check the score dataframe
 
-write.csv(np.uptake.scores, file="np.uptake.scores.csv", quote=FALSE) #export uss scores to your working directory
+write.csv(np.uptake.scores, file="datasets/np.uptake.scores.csv", quote=FALSE) #export uss scores to your working directory
 
 np.uptake.scores<- read.csv("np.uptake.scores.csv") #read the file in case I am starting all over
+
+
+np.uptake.scores[which.min(np.uptake.scores$w),] #check lowest score
+
+np.uptake.scores[which.max(np.uptake.scores$w),] #check lowest score
+
+
+np.uptake.scores[which.min(np.uptake.scores$c),] #check highest score
+
+np.uptake.scores[which.max(np.uptake.scores$c),] #check highest score
+
+#########################################################################################
+#####################      Plot histograms of uptake scores         #####################
+#########################################################################################
+
+p <- ggplot() +
+  geom_histogram(aes(x = w), binwidth = 0.2, colour = "black", data = np.uptake.scores) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 1.2e+5), expand = c(0, 0))+
+  labs(x = "scores Watson strand") +
+  ggtitle("Histogram of uptake scores for NP genome Watson strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/scores/scores","NP", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = w), binwidth = 0.2, colour = "black", data = np.uptake.scores) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 2e+3), expand = c(0, 0))+
+  labs(x = "scores Watson strand") +
+  ggtitle("Histogram of uptake scores for NP genome Watson strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/scores/scores","NP", "zoom", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = c), binwidth = 0.2, colour = "black", data = np.uptake.scores) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 1.2e+5), expand = c(0, 0))+
+  labs(x = "scores Crick strand") +
+  ggtitle("Histogram of uptake scores for NP genome Crick strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/scores/scores","NP","c", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = c), binwidth = 0.2, colour = "black", data = np.uptake.scores) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 2e+3), expand = c(0, 0))+
+  labs(x = "scores Crick strand") +
+  ggtitle("Histogram of uptake scores for NP genome Crick strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/scores/scores","NP","c", "zoom", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
 
 
 #################################################################

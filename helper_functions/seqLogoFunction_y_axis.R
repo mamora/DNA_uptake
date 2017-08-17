@@ -195,7 +195,8 @@ addLetter <- function(letters,which,x.pos,y.pos,ht,wt){
 
 
 ## plot a sequence logo
-seqLogo3 <- function(pwm, ic.scale=TRUE, xaxis=TRUE, yaxis=TRUE, xfontsize=15, yfontsize=15){
+seqLogo3 <- function(pwm, ic.scale=TRUE, xaxis=TRUE, yaxis=TRUE, xfontsize = 12, yfontsize = 12, 
+                     maradj = 0, fontadj = 3, yscale = 2){
   
   if (class(pwm) == "pwm"){
     pwm <- pwm@pwm    
@@ -243,22 +244,24 @@ seqLogo3 <- function(pwm, ic.scale=TRUE, xaxis=TRUE, yaxis=TRUE, xfontsize=15, y
   }
   
   grid.newpage()
-  bottomMargin = ifelse(xaxis, 2 + xfontsize/3.5, 2)
-  leftMargin = ifelse(yaxis, 2 + yfontsize/3.5, 2)
-  pushViewport(plotViewport(c(bottomMargin,leftMargin,2,2)))
-  pushViewport(dataViewport(0:ncol(pwm),0:ylim,name="vp1"))
-  grid.polygon(x=unit(letters$x,"native"), y=unit(letters$y,"native"),
-               id=letters$id,
-               gp=gpar(fill=letters$fill,col="transparent"))
-  if (xaxis){
-    grid.xaxis(at=seq(0.5,ncol(pwm)-0.5),label=1:ncol(pwm), gp=gpar(fontsize=xfontsize))
-    grid.text("Position",y=unit(-3,"lines"), gp=gpar(fontsize=xfontsize))
+  bottomMargin = ifelse(xaxis, maradj + xfontsize/3.5, maradj)
+  leftMargin = ifelse(yaxis, maradj + yfontsize/3.5, maradj)
+  pushViewport(plotViewport(c(bottomMargin, leftMargin, maradj, 
+                              maradj)))
+  pushViewport(dataViewport(0:ncol(pwm), 0:ylim, name = "vp1"))
+  grid.polygon(x = unit(letters$x, "native"), y = unit(letters$y, 
+                                                       "native"), id = letters$id, gp = gpar(fill = letters$fill, 
+                                                                                             col = "transparent"))
+  if (xaxis) {
+    grid.xaxis(at = seq(0.5, ncol(pwm) - 0.5), label = 1:ncol(pwm), 
+               gp = gpar(fontsize = xfontsize-fontadj))
+    grid.text("position", y = unit(-3, "lines"), gp = gpar(fontsize = xfontsize))
   }
-  if (yaxis){
-    grid.yaxis(gp=gpar(fontsize=yfontsize))
-    grid.text(ylab,x=unit(-3,"lines"),rot=90, gp=gpar(fontsize=yfontsize))
+  if (yaxis) {
+    grid.yaxis(gp = gpar(fontsize = yfontsize-fontadj))
+    grid.text(ylab, x = unit(-3, "lines"), rot = 90, gp = gpar(fontsize = yfontsize))
   }
   popViewport()
   popViewport()
-  par(ask=FALSE)
+  par(ask = FALSE)
 }

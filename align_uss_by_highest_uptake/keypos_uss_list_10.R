@@ -15,7 +15,7 @@
 
 # Name the path of the working directory; 
 ### Set the path from your computer ###
-whereami <- "C:/Users/marcelo/Dropbox/documentos phd/experiments/virtual experiments/Vex4/tutorialRjosh/Tutorial1/" # Where these files are located
+whereami <- "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/" # Where these files are located
 
 # Set working directory
 setwd(whereami)
@@ -25,68 +25,79 @@ list.files(whereami) #see files in directory
 # All this dataframes are available by request. Contact redfield@zoology.ubc.ca
 
 ################Load Functions################################
-
-source("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/peak finder/pssmFunctions1.R")
+# Load the various functions used below from the "pssmFunctions.R" file,
+# as if the whole file were copy-pasted to the R command-line
+source("~/DNA_uptake/helper_functions/pssmFunctions1.R")
 
 ##########Load list of uptake ratios per genomic position#########################
-
-uptake<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/uptake_recal.csv") #save file
-
+# load dataframes
+Uptake.ratio.np<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.np.csv") #load new input samples fro UP01   
+# load dataframes
+Uptake.ratio.gg<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.gg.csv") #load new input samples fro UP01   
 
 ###########Load list of positions identified as USS##############################
 
 
-Uptake.uss.10.list<- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/Uptake.uss.list.cut.10.csv")
+Uptake.uss.10.list.np<- read.csv("./datasets/Up.USS.np.10.list.csv")
+
+Uptake.uss.10.list.gg<- read.csv("./datasets/Up.USS.PittGG.10.list.csv")
 
 
 ###########################################################
 ######   chose central position and align all USS  ########         
 ###########################################################
 
+# Load the scoring model
+motif   <- read.csv("~/DNA_uptake/datasets/uptake.pssm.csv", stringsAsFactors=FALSE, nrows=4, row=1) # motif model
 
-offset<- 17  # set offset positions in the motif which has the highest uptake of the uss peak
+
+offset<- 16  # set offset positions in the motif which has the highest uptake of the uss peak
+
+sitelen <- dim(motif)[2] # positions in motif
 
 #######################
 # Index USS positions #
 #######################
 
 # index site orientations
-f.ind <- which(Uptake.uss.10.list$strand == "w")
-r.ind <- which(Uptake.uss.10.list$strand == "c")
+f.ind <- which(Uptake.uss.10.list.np$strand == "w")
+r.ind <- which(Uptake.uss.10.list.np$strand == "c")
 
 
 # offset to the key position
-Uptake.uss.10.list$keypos <- 0 # initialize
-Uptake.uss.10.list$keypos[f.ind] <- Uptake.uss.10.list$USS.pos[f.ind] + offset - 1 # forwards
-Uptake.uss.10.list$keypos[r.ind] <- Uptake.uss.10.list$USS.pos[r.ind] + sitelen - offset # reverses
+Uptake.uss.10.list.np$keypos <- 0 # initialize
+Uptake.uss.10.list.np$keypos[f.ind] <- Uptake.uss.10.list.np$USS.pos[f.ind] + offset - 1 # forwards
+Uptake.uss.10.list.np$keypos[r.ind] <- Uptake.uss.10.list.np$USS.pos[r.ind] + sitelen - offset # reverses
 
-str(Uptake.uss.10.list)
+str(Uptake.uss.10.list.np)
 
 
 # fix any keypos that run off the end of the linearized chromosome
-tooLong <- which(Uptake.uss.10.list$keypos > length(uptake$pos))
+tooLong <- which(Uptake.uss.10.list.np$keypos > length(Uptake.ratio.np$pos))
 
 #########################################
 # Cross-tabulate uptake ratios with USS #
 #########################################
 
-# flag at key position
-Uptake.uss.10.list$keyflag_small <- uptake$flag_small[match(Uptake.uss.10.list$keypos, uptake$pos)]
+str(Uptake.ratio.np)
 
-Uptake.uss.10.list$keyflag_large <- uptake$flag_large[match(Uptake.uss.10.list$keypos, uptake$pos)]
+# flag at key position
+Uptake.uss.10.list.np$flag_small <- Uptake.ratio.np$flag_small[match(Uptake.uss.10.list.np$keypos, Uptake.ratio.np$pos)]
+
+Uptake.uss.10.list.np$flag_large <- Uptake.ratio.np$flag_large[match(Uptake.uss.10.list.np$keypos, Uptake.ratio.np$pos)]
 
 # uptake ratio at key position
-Uptake.uss.10.list$keyup_small <- uptake$ratio_small[match(Uptake.uss.10.list$keypos, uptake$pos)]
+Uptake.uss.10.list.np$keyup_small <- Uptake.ratio.np$ratio_short[match(Uptake.uss.10.list.np$keypos, Uptake.ratio.np$pos)]
 
-Uptake.uss.10.list$keyup_large <- uptake$ratio_large[match(Uptake.uss.10.list$keypos, uptake$pos)]
+Uptake.uss.10.list.np$keyup_large <- Uptake.ratio.np$ratio_long[match(Uptake.uss.10.list.np$keypos, Uptake.ratio.np$pos)]
 
 
 # need a check here to ensure the liftover is correct, but it should be...
 
 
-write.csv(Uptake.uss.10.list, file="C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Scoring_USS/Output/Uptake.uss.list.cut.10.csv", quote=FALSE) #save file
+write.csv(Uptake.uss.10.list.np, file="./datasets/Uptake.uss.10.list.np.csv", quote=FALSE) #save file
 
-
+str(Uptake.uss.10.list.np)
 
 
 ###########################################################
@@ -97,18 +108,7 @@ write.csv(Uptake.uss.10.list, file="C:/Users/marcelo/Dropbox/uptake/Final_resour
 ######   load samples and working directory        ########         
 ###########################################################
 
-Up.PittGG.10.USS.list <- read.csv("C:/Users/marcelo/Dropbox/uptake/Everything_else/Marcelo scripts and files/PittGG_maps/Up.PittGG.10.USS.list.csv")
-
-
-uss<- Up.PittGG.10.USS.list #just rename the dataframe
-
-
-# Load the scoring model
-motif   <- read.csv("C:/Users/marcelo/Dropbox/uptake/Final_resources/R_scripts/Commons/uptake.pssm.csv", stringsAsFactors=FALSE, nrows=4, row=1) # motif model
-
-sitelen <- dim(motif)[2] # positions in motif
-
-offset  <- 17  # position lovated in the middle of the uptake peak
+str(Uptake.uss.10.list.gg)
 
 
 #######################
@@ -116,27 +116,27 @@ offset  <- 17  # position lovated in the middle of the uptake peak
 #######################
 
 # index site orientations
-f.ind <- which(uss$strand == "w")
-r.ind <- which(uss$strand == "c")
+f.ind <- which(Uptake.uss.10.list.gg$strand == "w")
+r.ind <- which(Uptake.uss.10.list.gg$strand == "c")
 
 # offset to the key position
-uss$centralpos <- 0 # initialize
-uss$centralpos[f.ind] <- uss$USS.pos[f.ind] + offset - 1 # forwards
-uss$centralpos[r.ind] <- uss$USS.pos[r.ind] + sitelen - offset # reverses
+Uptake.uss.10.list.gg$centralpos <- 0 # initialize
+Uptake.uss.10.list.gg$centralpos[f.ind] <- Uptake.uss.10.list.gg$USS.pos[f.ind] + offset - 1 # forwards
+Uptake.uss.10.list.gg$centralpos[r.ind] <- Uptake.uss.10.list.gg$USS.pos[r.ind] + sitelen - offset # reverses
 
-str(uss)
+str(Uptake.uss.10.list.gg)
 
 
 # Reorder based on centralpos 
-uss <- uss[order(uss$centralpos), ]
+Uptake.uss.10.list.gg <- Uptake.uss.10.list.gg[order(Uptake.uss.10.list.gg$centralpos), ]
 
 
 # uptake ratio at key position for small and large fragments 
-uss$keyup_small <- PittGG.uptake.ratio$ratio_small[match(uss$centralpos, PittGG.uptake.ratio$pos)]
+Uptake.uss.10.list.gg$keyup_small <- Uptake.ratio.gg$ratio_short[match(Uptake.uss.10.list.gg$centralpos, Uptake.ratio.gg$pos)]
 
-uss$keyup_large <- PittGG.uptake.ratio$ratio_long[match(uss$centralpos, PittGG.uptake.ratio$pos)]
+Uptake.uss.10.list.gg$keyup_large <- Uptake.ratio.gg$ratio_long[match(Uptake.uss.10.list.gg$centralpos, Uptake.ratio.gg$pos)]
 
 
-write.csv(uss, file="C:/Users/marcelo/Dropbox/uptake/Everything_else/Marcelo scripts and files/PittGG_maps/Up.PittGG.10.USS.list.csv", quote=FALSE) #save file
+write.csv(Uptake.uss.10.list.gg, file="datasets/Uptake.uss.10.list.gg.csv", quote=FALSE) #save file
 
 

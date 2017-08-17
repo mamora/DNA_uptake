@@ -59,7 +59,7 @@ p<- makePWM(pfm)
 
 #### Contains a bunch of functions (probably hacky)
 # Main one is SeqLogo2, which is my hack to get the right object 
-load("helper_functions/seqLogoFunction2.R")
+source("helper_functions/seqLogoFunction2.R")
 
 inpPCM <- read.csv("Figure_1_logos/inppcm.csv", row.names=1)
 perPCM <- read.csv("Figure_1_logos/perpcm.csv", row.names=1)
@@ -111,12 +111,11 @@ x <- perPCM/expPCM / rowSums(perPCM/expPCM)
 ######              Plot both logos                ########         
 ###########################################################
 
-png(filename="C:/Users/marcelo/Documents/DNA_uptake/Figure_1_logos/genomic_motifs.png", width = 900, height = 500, units = "px")
-seqLogo(p)
+pdf(file="Figure_1_logos/genomic_motifs.pdf", width = 12, height = 7)
+seqLogo3(p)
 dev.off()
 
-
-png(filename="C:/Users/marcelo/Documents/DNA_uptake/Figure_1_logos/uptake_motif.png", width = 900, height = 500, units = "px")
+pdf(file="Figure_1_logos/uptake_motif.pdf", width = 12, height = 7)
 seqLogo2(t(x))
 dev.off()
 
