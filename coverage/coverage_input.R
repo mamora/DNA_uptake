@@ -8,6 +8,10 @@ library(data.table)
 
 #############################load dataframes##############################
 input.all<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/input.all.csv") #load samples
+rd<-  fread("~/DNA_uptake/datasets/RR722.rd.pilon.all.depth.bed") 
+str(rd)
+unique(rd$V4)
+rd.all<- rd %>% filter(V4 == "gi|16271976|ref|NC_000907.1|pilon")
 colnames(input.all)<- c("name","genome","pos","depth") # add headers
 u13<- dplyr::filter(input.all, name == "UP13")
 u14<- dplyr::filter(input.all, name == "UP14")
@@ -181,3 +185,26 @@ file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/cov
 tiff(file_name, width = 900, height = 500, units = "px")
 print(u)
 dev.off() 
+
+
+######################################    Plot histogram   #####################################
+
+
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = depth), binwidth = 25, colour = "black", data = input.all) +
+  facet_wrap(~name) +
+  labs(x = "coverage") +
+  ggtitle("Histogram of coverage of input samples without correction") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/coverage_hist","no_correction", "tiff", sep=".")
+tiff(file_name, width = 1600, height = 900, units = "px")
+print(p)
+dev.off()
+
