@@ -173,31 +173,38 @@ d.df<- ldply(l.df, rbind) #bind all dataframes of a list into one big dataframe 
 # 5. Plot all input data. 
 p0 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
   geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
-  scale_x_continuous(limits = c(1000,15000), expand = c(0, 0))+
+  scale_x_continuous(limits = c(1000,15000), breaks = seq(0 , 15000, 3000), expand = c(0, 0))+
+  scale_y_continuous(expand = c(0, 0))+
+  guides(colour = guide_legend(override.aes = list(size=5))) +
   scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
     ggtitle("Fragment distribution of large input fragments") +
   labs(x = "base pairs", y = "Relative # of frag") +
   theme_bw() +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
-        axis.title = element_text(face = "bold", size = 12, color = "black"))
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+          legend.position = "bottom",
+          panel.grid.minor = element_line(colour="white", size=0.5),
+          plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+          axis.text  = element_text(size=18),
+          axis.title = element_text(size = 18, face = "bold")) 
 
-ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/large.png", width = 50, height = 30, units = "cm")  
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/large1.png", width = 50, height = 30, units = "cm")  
 
 p1 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
   geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing
   scale_x_continuous(limits = c(0,1200), breaks = c(0,100,300,500,700,1000,1200), expand = c(0, 0))+
-    scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
+  guides(colour = guide_legend(override.aes = list(size=5))) +  
+  scale_color_manual(values = c("UP13" = "dark blue", "UP14" = "green", "UP15" = "red", "UP16" = "orange" ), name = "Input samples",labels = c("UP13" = "86-028NP long fragment", "UP14" = "PittGG long fragment", "UP15" = "86-028NP short fragment", "UP16" = "PittGG short fragment" )) +
     ggtitle("Fragment distribution of short input fragments") +
   labs(x = "base pairs", y = "Relative # of frag") +
   theme_bw() +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(size = rel(1.2), face = "bold", vjust = 1.5),
-        axis.title = element_text(face = "bold", size = 12, color = "black"))
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+          legend.position = "bottom",
+          panel.grid.minor = element_line(colour="white", size=0.5),
+          plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+          axis.text  = element_text(size=18),
+          axis.title = element_text(size = 18, face = "bold"))
 
-ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/small.png", width = 50, height = 30, units = "cm")  
+ggsave("C:/Users/marcelo/Dropbox/uptake/Everything_else/Bioanalyzer images/small1.png", width = 50, height = 30, units = "cm")  
 
 p2 <- ggplot(aes(x = bases, y =rel_mol, color = sample), data = d.df) +
   geom_smooth(method = "loess", span = 0.2) + #span controls the amount of smoothing

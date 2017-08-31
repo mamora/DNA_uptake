@@ -447,9 +447,12 @@ write.csv(raw.depth.inputs, "~/DNA_uptake/datasets/tables/raw.depth.inputs.csv")
 write.csv(Uptake.ratio.np, "~/DNA_uptake/datasets/tables/Uptake.ratio.np.csv")
 
 # load dataframes (OPTIONAL CODE)
-raw.depth.samples<- fread("~/DNA_uptake/datasets/tables/raw.depth.samples.csv") #load new input samples fro UP01   
-raw.depth.inputs<- fread("~/DNA_uptake/datasets/tables/raw.depth.inputs.csv") #load new input samples fro UP01   
-Uptake.ratio.np<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.np.csv") #load new input samples fro UP01   
+raw.depth.samples<- fread("~/DNA_uptake/datasets/tables/raw.depth.samples.csv") #load new uptake samples   
+raw.depth.inputs<- fread("~/DNA_uptake/datasets/tables/raw.depth.inputs.csv") #load new input samples  
+Uptake.ratio.np<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.np.csv") #load uptake ratios   
+Uptake.ratio.gg<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.gg.csv")    
+
+
 
 # remove the extra column introduced by fread
 Uptake.ratio.np$V1 <- NULL
@@ -548,6 +551,34 @@ tiff(file_name, width = 800, height = 500, units = "px")
 print(u)
 dev.off()
 
+#join gg and np dataframes to force ggplot to use the same y axis
+joined<- data.frame(pos = Uptake.ratio.np$pos[1:100000], ratio.np = Uptake.ratio.np$ratio_short[1:100000], ratio.gg = Uptake.ratio.gg$ratio_short[1:100000])  
+
+joined.tidy<- joined %>% tidyr::gather(sample, ratio, -pos)
+
+
+u<- ggplot(aes(x = pos,y = ratio), data = joined.tidy) +
+  geom_point(shape = 20, size = 1, colour = "blue")+
+  guides(colour = guide_legend(override.aes = list(size=5))) +
+  scale_color_manual(name = "Input coverage", values = c("TRUE" = "blue", "FALSE" = "red"), labels = c("TRUE" = "more than 10" , "FALSE" = "less or equal to 10")) + 
+  scale_x_continuous(breaks = seq(0 , 100000, 10000), expand = c(0, 0))+
+  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16, 24,48), limits = c(NA, 48), expand = c(0.0005, 0))+
+  facet_grid(sample ~.) +
+  labs(x = "genome positions", y = "uptake ratio") +
+  ggtitle(" Uptake ratio short donor DNA") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+
+file_name = paste("short.ratio.np.gg.log","100kb", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 1000, units = "px")
+print(u)
+dev.off() 
+
+
 
   
   u<- Uptake.ratio.np %>%  dplyr::slice(1:10000) %>% 
@@ -556,7 +587,7 @@ dev.off()
   guides(colour = guide_legend(override.aes = list(size=5))) +
   scale_color_manual(name = "Input coverage", values = c("TRUE" = "blue", "FALSE" = "red"), labels = c("TRUE" = "more than 10" , "FALSE" = "less or equal to 10")) + 
   scale_x_continuous(breaks = seq(0 , 10000, 1000), expand = c(0, 0))+
-  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16), limits = c(NA, 12), expand = c(0, 0))+
+  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16, 24,48), limits = c(NA, 12), expand = c(0, 0))+
   labs(x = "NP genome positions", y = "uptake ratio") +
   ggtitle(" Uptake ratio short donor NP DNA") +
   theme(plot.margin=unit(c(1,1,1,1),"cm"),
@@ -578,7 +609,7 @@ u<- Uptake.ratio.np %>%  dplyr::slice(1:100000) %>%
   guides(colour = guide_legend(override.aes = list(size=5))) +
   scale_color_manual(name = "Input coverage", values = c("TRUE" = "blue", "FALSE" = "red"), labels = c("TRUE" = "more than 10" , "FALSE" = "less or equal to 10")) + 
   scale_x_continuous(breaks = seq(0 , 100000, 10000), expand = c(0, 0))+
-  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16), limits = c(NA, 12), expand = c(0, 0))+
+  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16,24,48), limits = c(NA, 48), expand = c(0, 0))+
   labs(x = "NP genome positions", y = "uptake ratio") +
   ggtitle(" Uptake ratio short donor NP DNA") +
   theme(plot.margin=unit(c(1,1,1,1),"cm"),
@@ -588,7 +619,7 @@ u<- Uptake.ratio.np %>%  dplyr::slice(1:100000) %>%
         axis.text  = element_text(size=18),
         axis.title = element_text(size = 18, face = "bold")) 
 
-file_name = paste("short.ratio.np.log","100kb", "tiff", sep=".")
+file_name = paste("short.ratio.np.log","100kb","2", "tiff", sep=".")
 tiff(file_name, width = 800, height = 500, units = "px")
 print(u)
 dev.off()
@@ -695,7 +726,7 @@ u<- Uptake.ratio.np %>%  dplyr::slice(1:10000) %>%
   guides(colour = guide_legend(override.aes = list(size=5))) +
   scale_color_manual(name = "Input coverage", values = c("TRUE" = "blue", "FALSE" = "red"), labels = c("TRUE" = "more than 10" , "FALSE" = "less or equal to 10")) + 
   scale_x_continuous(breaks = seq(0 , 10000, 1000), expand = c(0, 0))+
-  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16), limits = c(NA, 12), expand = c(0, 0))+
+  scale_y_continuous(trans = log2_trans(), breaks = c(NA,0.0005,0.005,0.05,0.5,1,2,4,8,16,24,48), limits = c(NA, 12), expand = c(0, 0))+
   labs(x = "NP genome positions", y = " log2 of uptake ratio") +
   ggtitle(" Uptake ratio large donor NP DNA") +
   theme(plot.margin=unit(c(1,1,1,1),"cm"),
@@ -705,7 +736,7 @@ u<- Uptake.ratio.np %>%  dplyr::slice(1:10000) %>%
         axis.text  = element_text(size=18),
         axis.title = element_text(size = 18, face = "bold")) 
 
-file_name = paste("large.ratio.np.log","10kb", "tiff", sep=".")
+file_name = paste("large.ratio.np.log","10kb","2", "tiff", sep=".")
 tiff(file_name, width = 800, height = 500, units = "px")
 print(u)
 dev.off()  

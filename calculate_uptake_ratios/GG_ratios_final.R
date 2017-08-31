@@ -14,9 +14,9 @@ library(scales)
 #########################################################################
 
 #############################load dataframes##############################
-remix14.UP04<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX14.UP04.I.gg.depth.bed") #load new input samples fro UP01   
+remix14.UP04<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX14.UP04.I.gg.depth.bed") #load new input samples fro UP01   
 colnames(remix14.UP04)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
-samples.gg<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/samples.all.gg.bed.csv") #load all samples from NP donor DNA, input included
+samples.gg<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/samples.all.gg.bed.csv") #load all samples from NP donor DNA, input included
 colnames(samples.gg)<- c("sample","genome","pos","depth") # add headers
 up04<- dplyr::filter(samples.gg, sample == "UP04") #subset UP01 
 remix14.UP04$UP04<- up04$depth
@@ -92,7 +92,7 @@ dev.off()
 ###################################     UP05       ######################################
 
 #############################load dataframes##############################
-remix14.UP05<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX14.UP05.I.gg.depth.bed") #load new input samples for UP05   
+remix14.UP05<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX14.UP05.I.gg.depth.bed") #load new input samples for UP05   
 colnames(remix14.UP05)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
 up05<- dplyr::filter(samples.gg, sample == "UP05") #subset UP05 
 remix14.UP05$UP05<- up05$depth
@@ -123,7 +123,7 @@ remix14.UP05$UP05.ratio<- remix14.UP05$UP05.n/remix14.UP05$input.n
 ###################################     UP06       ######################################
 
 #############################load dataframes##############################
-remix14.UP06<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX14.UP06.I.gg.depth.bed") #load new input samples for UP06   
+remix14.UP06<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX14.UP06.I.gg.depth.bed") #load new input samples for UP06   
 colnames(remix14.UP06)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
 up06<- dplyr::filter(samples.gg, sample == "UP06") #subset UP06 
 remix14.UP06$UP06<- up06$depth
@@ -157,7 +157,7 @@ Uptake.ratio.gg<-  data.table(pos = remix14.UP04$pos, UP04.ratio = remix14.UP04$
 #################################      UP07       ############################################
 
 #############################load dataframes##############################
-remix16.UP10<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX16.UP10.I.gg.depth.bed") #load new input samples fro UP10   
+remix16.UP10<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX16.UP10.I.gg.depth.bed") #load new input samples fro UP10   
 colnames(remix16.UP10)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
 up10<- dplyr::filter(samples.gg, sample =="UP10") #subset UP10 
 remix16.UP10$UP10<- up10$depth
@@ -244,7 +244,7 @@ dev.off()
 
 
 #############################load dataframes##############################
-remix16.UP11<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX16.UP11.I.gg.depth.bed") #load new input samples for UP11   
+remix16.UP11<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX16.UP11.I.gg.depth.bed") #load new input samples for UP11   
 colnames(remix16.UP11)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
 up11<- dplyr::filter(samples.gg, sample =="UP11") #subset UP07 
 remix16.UP11$UP11<- up11$depth
@@ -283,7 +283,7 @@ Uptake.ratio.gg$UP11.ratio<- remix16.UP11$UP11.ratio
 
 
 #############################load dataframes##############################
-remix16.UP12<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX_files/all/REMIX16.UP12.I.gg.depth.bed") #load new input samples fro UP01   
+remix16.UP12<- fread("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/REMIX/REMIX_files/all/REMIX16.UP12.I.gg.depth.bed") #load new input samples fro UP01   
 colnames(remix16.UP12)<- c("genome","start","end","pos","depth.1","depth.2","depth.3","depth.4") # add headers
 up12<- dplyr::filter(samples.gg, sample =="UP12") #subset UP12 
 remix16.UP12$UP12<- up12$depth
@@ -346,7 +346,7 @@ Uptake.ratio.gg$flag_large <- flag_large
 # make a normalized depth dataframe
 norm.ratios.gg<-  data.table(pos = remix14.UP04$pos, UP04 = remix14.UP04$UP04.n, UP05 = remix14.UP05$UP05.n, UP06 = remix14.UP06$UP06.n, UP10 = remix16.UP10$UP10.n, UP11 = remix16.UP11$UP11.n, UP12 = remix16.UP12$UP12.n, UP14.UP04 = remix14.UP04$input.n, UP14.UP05 = remix14.UP05$input.n, UP14.UP06 = remix14.UP06$input.n, UP16.UP10 = remix16.UP10$input.n, UP16.UP11 = remix16.UP11$input.n, UP16.UP12 = remix16.UP12$input.n) 
 # save
-write.csv(norm.ratios.gg, "~/DNA_uptake/datasets/tables/norm.ratios.np.csv")
+write.csv(norm.ratios.gg, "~/DNA_uptake/datasets/tables/norm.ratios.gg.csv")
 # Add pseudocounts to normalized depth will help removing inout 0 positions. Input 0 positions will affect the peak finder  analysis. 
 str(norm.ratios.np)
 pseudo.ratios.np<- data.frame() #make empty data.frame
@@ -495,7 +495,7 @@ u<- Uptake.ratio.gg %>%  dplyr::slice(1:100000) %>%
         axis.text  = element_text(size=18),
         axis.title = element_text(size = 18, face = "bold")) 
 
-file_name = paste("short.ratio.gg.log.3","100kb", "tiff", sep=".")
+file_name = paste("short.ratio.gg.log.3","100kb","2", "tiff", sep=".")
 tiff(file_name, width = 800, height = 500, units = "px")
 print(u)
 dev.off()  

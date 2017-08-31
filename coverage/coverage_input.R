@@ -18,6 +18,24 @@ u14<- dplyr::filter(input.all, name == "UP14")
 u15<- dplyr::filter(input.all, name == "UP15")
 u16<- dplyr::filter(input.all, name == "UP16")
 
+raw.depth.samples<- fread("~/DNA_uptake/datasets/tables/raw.depth.samples.csv") #load new input samples fro UP01   
+# load dataframes
+raw.depth.samples.gg<- fread("~/DNA_uptake/datasets/tables/raw.depth.samples.gg.csv") #load new input samples fro UP01   
+
+raw.depth.samples$UP13<- u13$depth
+
+raw.depth.samples$UP15<- u15$depth
+
+raw.depth.samples.gg$UP14<- u14$depth
+
+raw.depth.samples.gg$UP16<- u16$depth
+
+write.table(raw.depth.samples, "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/raw.depth.samples.txt", sep="\t")
+
+write.table(raw.depth.samples.gg, "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/raw.depth.samples.gg.txt", sep="\t")
+
+str(raw.depth.samples)
+
 #########################################################################
 
 #############################check dataframes##############################
@@ -39,6 +57,9 @@ up15.all.mapped<- 4750647 # total mapped reads from summary table
 up15.n<- (u15$depth *1e+6)/up15.all.mapped
 up16.all.mapped<- 10168072 # total mapped reads from summary table
 up16.n<- (u16$depth *1e+6)/up16.all.mapped
+
+
+
 #########################################################################
 
 
@@ -47,6 +68,12 @@ up16.n<- (u16$depth *1e+6)/up16.all.mapped
 input.n.np<- data.frame(pos = u13$pos, up13.n = up13.n, up15.n =up15.n) 
 
 input.n.gg<- data.frame(pos = u14$pos, up14.n = up14.n,  up16.n = up16.n) 
+
+write.table(input.n.np, "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/datasets/input.n.np.txt", sep="\t" )
+
+write.table(input.n.gg, "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/datasets/input.n.gg.txt", sep="\t" )
+
+
 #############################################################################################
 
 #######################    tidy up dataframes   ##########################
@@ -186,6 +213,64 @@ tiff(file_name, width = 900, height = 500, units = "px")
 print(u)
 dev.off() 
 
+u<- input.n.gg %>%  dplyr::slice(1:1000) %>% tidyr::gather(sample, "n.depth", 2:3) %>% 
+  ggplot(aes(x = pos,y = n.depth)) +
+  geom_point(aes(color = sample), shape = 20, size = 1)+
+  guides(colour = guide_legend(override.aes = list(shape=20, size = 3))) +
+  scale_x_continuous(breaks = seq(0 , 1000, 100), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 800))+
+  labs(x = "PittGG genome positions", y = "normalized depth") +
+  ggtitle(" coverage map normalized input ") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/norm_input_map/normalized_input", "1kb","PittGG","2", "tiff", sep=".")
+tiff(file_name, width = 900, height = 500, units = "px")
+print(u)
+dev.off() 
+
+u<- input.n.gg %>%  dplyr::slice(4000:5000) %>% tidyr::gather(sample, "n.depth", 2:3) %>% 
+  ggplot(aes(x = pos,y = n.depth)) +
+  geom_point(aes(color = sample), shape = 20, size = 1)+
+  guides(colour = guide_legend(override.aes = list(shape=20, size = 3))) +
+  scale_x_continuous(breaks = seq(4000 , 5000, 100), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 800))+
+  labs(x = "PittGG genome positions", y = "normalized depth") +
+  ggtitle(" coverage map normalized input ") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/norm_input_map/normalized_input", "1kb","PittGG","3", "tiff", sep=".")
+tiff(file_name, width = 900, height = 500, units = "px")
+print(u)
+dev.off() 
+
+
+
+u<- input.n.gg %>%  dplyr::slice(6000:7000) %>% tidyr::gather(sample, "n.depth", 2:3) %>% 
+  ggplot(aes(x = pos,y = n.depth)) +
+  geom_point(aes(color = sample), shape = 20, size = 1)+
+  guides(colour = guide_legend(override.aes = list(shape=20, size = 3))) +
+  scale_x_continuous(breaks = seq(6000 , 7000, 100), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0, 800))+
+  labs(x = "PittGG genome positions", y = "normalized depth") +
+  ggtitle(" coverage map normalized input ") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/norm_input_map/normalized_input", "1kb","PittGG","4", "tiff", sep=".")
+tiff(file_name, width = 900, height = 500, units = "px")
+print(u)
+dev.off()
 
 ######################################    Plot histogram   #####################################
 
@@ -207,4 +292,35 @@ file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/cov
 tiff(file_name, width = 1600, height = 900, units = "px")
 print(p)
 dev.off()
+
+
+##################################################################################################################
+
+#################################   Raw input coverage   #########################################################
+
+str(input.all)
+
+u<- unique(input.all$name)
+
+for (i in 1:length(u)){
+  p<- input.all %>% dplyr::filter(name == u[i])
+   p1<- ggplot(aes(x = pos,y = depth), data = p) +
+    geom_point(shape = ".", size = 1)+
+    scale_x_continuous(breaks = seq(0 , length(p$pos), 200000), expand = c(0, 0))+
+    scale_y_continuous(limits = c(0, 3000), expand = c(0, 0))+
+    labs(x = "genome positions", y = "Depth") +
+    ggtitle(paste("coverage maps raw input samples", u[i], sep = " ")) +
+    theme(plot.margin=unit(c(1,1,1,1),"cm"),
+          legend.position = "bottom",
+          panel.grid.minor = element_line(colour="white", size=0.5),
+          plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+          axis.text  = element_text(size=18),
+          axis.title = element_text(size = 18, face = "bold")) 
+  file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/coverage_raw_input/uptake_maps","whole_genome", u[i], "2", "tiff", sep=".")
+  tiff(file_name, width = 1000, height = 700, units = "px")
+  print(p1)
+  dev.off()  
+}
+
+
 

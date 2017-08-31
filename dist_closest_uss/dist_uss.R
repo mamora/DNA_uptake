@@ -8,7 +8,7 @@
 
 # Name the path of the working directory; 
 ### Set the path from your computer ###
-whereami <- "C:/Users/marcelo/Documents/DNA_uptake" # Where these files are located
+whereami <- "C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/" # Where these files are located
 
 # Set working directory
 setwd(whereami)
@@ -18,34 +18,34 @@ setwd(whereami)
 source("./helper_functions/pssmFunctions1.R")
 
 
-NP.uptake.ratio<- read.csv("./datasets/NP.uptake.ratio.csv") #load uptake ratios np short fragments
+Uptake.ratio.np<- read.csv("./datasets/Uptake.ratio.np.csv") #read scores file 
 
-PittGG.uptake.ratio<- read.csv("./datasets/PittGG.uptake.ratio.csv") #load uptake ratios PittGG short and large fragments
+Uptake.ratio.gg<- read.csv("./datasets/Uptake.ratio.gg.csv") #read scores file 
 
-Up.USS.PittGG.10.list<- read.csv("./datasets/Up.USS.PittGG.10.list.csv")
+Uptake.uss.10.list.gg<- read.csv("./datasets/Uptake.uss.10.list.gg.csv")
 
-Up.USS.np.10.list<- read.csv("./datasets/Up.USS.np.10.list.csv")
+Uptake.uss.10.list.np<- read.csv("./datasets/Uptake.uss.10.list.np.csv")
 
 ###########################################################################
 ######   calculate distance of each position to closest USS        ########         
 ###########################################################################
 
 
-close.USS.np<- sapply(NP.uptake.ratio$pos,dist.USS, USS.genome.c = Up.USS.np.10.list$keypos) #calculate closest distance to USS for each position
+close.USS.np<- sapply(Uptake.ratio.np$pos,dist.USS, USS.genome.c = Uptake.uss.10.list.np$keypos) #calculate closest distance to USS for each position
 
-close.USS.gg<- sapply(NP.uptake.ratio$pos,dist.USS, USS.genome.c = Up.USS.PittGG.10.list$keypos) #calculate closest distance to USS for each position
+close.USS.gg<- sapply(Uptake.ratio.gg$pos,dist.USS, USS.genome.c = Uptake.uss.10.list.gg$centralpos) #calculate closest distance to USS for each position
 
 #add them to dataframes
 
-NP.uptake.ratio$close.USS.np<- close.USS.np
+Uptake.ratio.np$close.USS.np<- close.USS.np
 
-PittGG.uptake.ratio$close.USS.gg<- close.USS.gg
+Uptake.ratio.gg$close.USS.gg<- close.USS.gg
 
 #save files
 
-write.csv(NP.uptake.ratio, "./datasets/NP.uptake.ratio.csv")
+write.csv(Uptake.ratio.np, "./datasets/Uptake.ratio.np.csv")
 
-write.csv(PittGG.uptake.ratio, "./datasets/PittGG.uptake.ratio.csv")
+write.csv(Uptake.ratio.gg, "./datasets/Uptake.ratio.gg.csv")
 
 
 ############################################################################

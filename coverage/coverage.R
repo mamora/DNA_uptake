@@ -290,49 +290,4 @@ for (i in 1:length(u)){
 
 
 
-#################################   Plot uptake ratios histograms     #####################################
 
-
-
-str(Uptake.ratio.np.all)
-
-
-for (i in 1:length(u)){
-  p<- Uptake.ratio.np.all %>% dplyr::filter(sample == u[i]) %>% ggplot() +
-    geom_histogram(aes(x = ratio), binwidth = 0.5, colour = "black") +
-    scale_y_continuous(limits = c(0,1.2e+6), expand = c(0, 0))+  
-    scale_x_continuous(limits = c(0,20), breaks = seq(0 , 20, 2), expand = c(0, 0))+ 
-    labs(x = "uptake ratios") +
-    ggtitle(paste("Histogram of uptake ratios from ", u[i],"uptake donor DNA", sep=" ")) +
-    theme(plot.margin=unit(c(1,1,1,1),"cm"),
-          legend.position = "bottom",
-          panel.grid.minor = element_line(colour="white", size=0.5),
-          plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-          axis.text  = element_text(size=18),
-          axis.title = element_text(size = 18, face = "bold")) 
-  file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/uptake_ratios_histograms/histogram","ratios", u[i], "tiff", sep=".")
-  tiff(file_name, width = 1000, height = 500, units = "px")
-  print(p)
-  dev.off()
-}  
-
-
-
-for (i in 1:length(u)){
-  p<- Uptake.ratio.gg.all %>% dplyr::filter(sample == u[i]) %>% ggplot() +
-    geom_histogram(aes(x = ratio), binwidth = 0.5, colour = "black") +
-    scale_y_continuous(limits = c(0,1.2e+6), expand = c(0, 0))+  
-    scale_x_continuous(limits = c(0,20), breaks = seq(0 , 20, 2), expand = c(0, 0))+ 
-    labs(x = "uptake ratios") +
-    ggtitle(paste("Histogram of uptake ratios from ", u[i],"uptake donor DNA", sep=" ")) +
-    theme(plot.margin=unit(c(1,1,1,1),"cm"),
-          legend.position = "bottom",
-          panel.grid.minor = element_line(colour="white", size=0.5),
-          plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-          axis.text  = element_text(size=18),
-          axis.title = element_text(size = 18, face = "bold")) 
-  file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/coverage/uptake_ratios_histograms/histogram","ratios", u[i], "tiff", sep=".")
-  tiff(file_name, width = 1000, height = 500, units = "px")
-  print(p)
-  dev.off()
-}

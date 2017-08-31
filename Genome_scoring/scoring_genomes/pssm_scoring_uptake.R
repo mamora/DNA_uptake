@@ -205,6 +205,222 @@ tiff(file_name, width = 1400, height = 800, units = "px")
 print(p)
 dev.off()
 
+###########################################     histograms of both c and w together   ########################################
+
+
+library(dplyr)
+library(tidyr)
+
+np.uptake.scores<- read.csv("./datasets/np.uptake.scores.csv")
+
+
+scores.long.np<- np.uptake.scores[,c(1,2,3)] %>% tidyr::gather(strands, score, -X)
+
+unique(scores.long.np$strands)
+
+p <- ggplot() +
+  geom_histogram(aes(x = score), binwidth = 0.2, colour = "black", data = scores.long.np) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1))+
+  scale_y_continuous(limits = c(0, 3e+5), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for NP genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","NP","both", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = score), binwidth = 0.2, colour = "black", data = scores.long.np) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 3e+3), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for NP genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","NP","both","zoom", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+### Same but for GG
+
+gg.uptake.scores<- read.csv("./datasets/gg.uptake.scores.csv")
+
+
+scores.long.gg<- gg.uptake.scores[,c(2,3,4)] %>% tidyr::gather(strands, score, -X)
+
+unique(scores.long.gg$strands)
+
+p <- ggplot() +
+  geom_histogram(aes(x = score), binwidth = 0.2, colour = "black", data = scores.long.gg) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1))+
+  scale_y_continuous(limits = c(0, 3e+5), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for PittGG genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","GG","both", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = score), binwidth = 0.2, colour = "black", data = scores.long.gg) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 3e+3), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for PittGG genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","GG","both","zoom", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+################################        Normalize scores by genome size    ###########################
+
+ph<- ggplot() +
+  geom_histogram(aes(x = score, y=(..count.. * 1e+6)/1914386), binwidth = 0.2, colour = "black", data = scores.long.np)
+  
+
+p <- ggplot() +
+  geom_histogram(aes(x = score, y=..count../1914386), binwidth = 0.2, colour = "black", data = scores.long.np) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1))+
+  scale_y_continuous(limits = c(0, 0.1), expand = c(0, 0))+
+  labs(x = "USS scores", y  = "density") +
+  ggtitle("Histogram of uptake scores for NP genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","NP","both","density","all", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+
+p <- ggplot() +
+  geom_histogram(aes(x = score, y=..count../1914386), binwidth = 0.2, colour = "black", data = scores.long.np) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 0.001), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for NP genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","NP","both","zoom","density", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p)
+dev.off()
+
+ph1<- ggplot() +
+  geom_histogram(aes(x = score, y=(..count.. * 1e+6)/1887050), binwidth = 0.2, colour = "black", data = scores.long.gg)
+
+
+p1 <- ggplot() +
+  geom_histogram(aes(x = score, y=..count../1887050), binwidth = 0.2, colour = "black", data = scores.long.gg) +
+  scale_x_continuous(limits = c(-2, 13), breaks = seq(-2 , 13, 1))+
+  scale_y_continuous(limits = c(0, 0.1), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for PittGG genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","GG","both","density","all", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p1)
+dev.off()
+
+p1 <- ggplot() +
+  geom_histogram(aes(x = score, y=..count../1887050), binwidth = 0.2, colour = "black", data = scores.long.gg) +
+  scale_x_continuous(limits = c(8, 13), breaks = seq(8 , 13, 0.5))+
+  scale_y_continuous(limits = c(0, 0.001), expand = c(0, 0))+
+  labs(x = "USS scores") +
+  ggtitle("Histogram of uptake scores for PittGG genome both strand") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores","GG","both","zoom","density", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p1)
+dev.off()
+
+
+t<- ggplot_build(ph) 
+
+count.data.np.m<- t$data[[1]]
+
+tail(count.data.np.m)
+
+t1<- ggplot_build(ph1) 
+
+count.data.gg.m<- t1$data[[1]]
+
+
+count.data.both<- data.frame(score = count.data.np$x, density.np = count.data.np$y, density.gg = count.data.gg$y )
+
+count.data.both.m<- data.frame(score = count.data.np.m$x, count.m.np = count.data.np.m$y, count.m.gg = count.data.gg.m$y )
+
+
+write.csv(count.data.both, "./datasets/count.data.both.csv")
+
+count.data.both<- read.csv("./datasets/count.data.both.csv")
+
+count.data.both$np_gg<- count.data.both$density.np/count.data.both$density.gg
+
+count.data.both.m$np_gg<- count.data.both.m$count.m.np/count.data.both.m$count.m.gg
+
+
+p2 <- ggplot() +
+  geom_point(aes(x = score, y=np_gg), shape = 20, size = 3, colour = "black", data = count.data.both.m) +
+  scale_x_continuous(limits = c(-2, 13), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0.5, 1.5), expand = c(0, 0))+
+  labs(x = "USS scores", y = "difference between counts.per.millon in NP/PittGG") +
+  ggtitle("USS scores vs counts.per.millon of scores in NP/PittGG") +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+file_name = paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/USS scores/scores_counts.per.millon_np_gg", "tiff", sep=".")
+tiff(file_name, width = 1400, height = 800, units = "px")
+print(p2)
+dev.off()
+
 
 
 

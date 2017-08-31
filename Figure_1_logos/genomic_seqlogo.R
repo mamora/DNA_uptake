@@ -46,7 +46,7 @@ pcm     <- matrix2pcm(sitemat)    # count matrix
 pfm     <- pcm2pfm(pcm, pseudo=0) # frequency matrix
 
 # take only positions I used for the analysis
-pfm<- pfm[,4:34]
+pfm<- pfm[,3:33]
 
 #make the PPM or PFM matrix used for the logo
 p<- makePWM(pfm)
@@ -63,10 +63,13 @@ source("helper_functions/seqLogoFunction2.R")
 
 inpPCM <- read.csv("Figure_1_logos/inppcm.csv", row.names=1)
 perPCM <- read.csv("Figure_1_logos/perpcm.csv", row.names=1)
+#subset the positions I am interested
+inpPCM<- inpPCM[1:31,1:4]
+perPCM<- perPCM[1:31,1:4]
 
 # This gets the consensus of the right 31 bases and makes a numeric string too.
 consensus <- "ATGCCAAAGTGCGGTTAATTTTTACAGTATTTTTGGGTTCGA"
-consensus <- substring(consensus, 6, 36)
+consensus <- substring(consensus, 5, 35)
 connum    <- as.numeric(factor(unlist(strsplit(consensus, ""))))
 degen     <- 0.24 # This is the predicted dengeneracy of the input per position
 sampn     <- 1e7  # This is the subsample size to make both datasets the same size.
@@ -111,12 +114,12 @@ x <- perPCM/expPCM / rowSums(perPCM/expPCM)
 ######              Plot both logos                ########         
 ###########################################################
 
-pdf(file="Figure_1_logos/genomic_motifs.pdf", width = 12, height = 7)
+pdf(file="Figure_1_logos/genomic_motifs1.pdf", width = 12, height = 7)
 seqLogo3(p)
 dev.off()
 
-pdf(file="Figure_1_logos/uptake_motif.pdf", width = 12, height = 7)
-seqLogo2(t(x))
+pdf(file="Figure_1_logos/uptake_motif1.pdf", width = 12, height = 7)
+seqLogo2(t(y))
 dev.off()
 
 

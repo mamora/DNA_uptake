@@ -8,7 +8,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 # Set the path of the working directory; 
-knitr::opts_knit$set(root.dir = '~/DNA_uptake')
+knitr::opts_knit$set(root.dir = 'C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/')
 
 ```
 
@@ -62,7 +62,9 @@ image ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo//peak_finder/peak_fi
 
 library(ggplot2)
 
-uptake<- read.csv("./datasets/uptake_recal.csv") #read file with positions and ratios (created in Ve4_Josh_task.R)
+Uptake.ratio.np<- read.csv("./datasets/Uptake.ratio.np.csv") #read scores file 
+
+Uptake.ratio.gg<- read.csv("./datasets/Uptake.ratio.gg.csv") #read scores file 
 
 source("./helper_functions/peak_finder_functions.R")
 
@@ -74,8 +76,8 @@ source("./helper_functions/peak_finder_functions.R")
 
 ```{r}
 
-x<- split_pos(uptake)   #split the uptake file for positions
-y<- split_ratio(uptake) #split the uptake file for ratios
+x<- split_pos(uptake = Uptake.ratio.np)   #split the uptake file for positions
+y<- split_ratio(uptake = Uptake.ratio.np) #split the uptake file for ratios
 
 
 
@@ -104,6 +106,8 @@ h1<- c()
 h2<- c()
 
 peaks.overlap<- data.frame(pos = h1, re.ratio = h2)
+
+i = 1
 
 for(i in 1:191)
 {
@@ -137,7 +141,7 @@ for(i in 1:191)
 
 peak.list.all<- data.frame(pos = h1, ratio = h2) #make a dataframe with peaks position and ratio
 
-write.csv(peaks.list.all, "./datasets/peak.list.all.csv")
+write.csv(peak.list.all, "./datasets/peak.list.all.csv")
 
 ```
 
