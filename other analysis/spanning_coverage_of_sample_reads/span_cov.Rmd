@@ -1,0 +1,224 @@
+---
+title: "spanning coverage"
+author: "Marcelo Mora"
+date: "22 de marzo de 2017"
+output: html_document
+---
+
+
+#Objective
+
+The objective of to make histograms of spanning coverage by read pairs. Or in ther words the distribution of transposon sheared fragment lengths.
+
+
+#Strategy
+
+To do this, first Josh Mell loaded the bam files of the sequencing uptake data into the zoology server. 
+
+Next I accessed the zoology cluster using my account and the software PUTTY. Once in the main zoology server I was able to see the uptake folder with the bam files in it. I then transfered the folder to the Zoology cluster by `cp -R uptake cluster`.
+
+Then, I made a bash shell script that for each sample it sorted the bam files by read pairs. Then the script would convert the bam file into a BEDPE format. In this format each row is a pair of reads, the second column is the start of the one of the read pairs on one strand, the column 6 is the end of the other read from each pair on the other strand. 
+
+
+image: ![](C:/Users/marcelo/Dropbox/uptake/task_list_marcelo/spanning coverage/ BEDPE.png) 
+
+The bash shell script is: 
+
+
+````
+#!/bin/bash
+
+for bam in `ls *.bam`
+do
+  prefix=`basename $bam .bam`
+ 
+samtools sort -n $bam -o ./sorted/sorted.$prefix.bam
+ 
+ bedtools bamtobed -i ./sorted/sorted.$prefix.bam -bedpe \
+ > ./span/final.$prefix.txt
+   
+done
+
+`````
+
+Now I will build the spanning coverage figure, but first I have to get the data (second and sixth column of each dataset) and put it in a format readable by ggplot
+
+
+```{r setup, include=FALSE}
+# Set the path of the working directory; 
+knitr::opts_knit$set(root.dir = 'C:/Users/marcelo/Documents/bedpe/')
+
+```
+
+
+```{r}
+
+library(ggplot2)
+
+
+trim<- function(x){
+x$frag_size<- x$end_2 - x$start_1  
+x<- x[which(x$frag_size > 0 & x$frag_size < 600),]
+return(x)
+}
+
+library(data.table)
+
+UP01<- fread(file = "final.UP01.np.pilon.txt",  header = FALSE)
+UP02<- fread(file = "final.UP02.np.pilon.txt", header = FALSE)
+UP03<- fread(file = "final.UP03.np.pilon.txt",  header = FALSE)
+UP04<- fread(file = "final.UP04.gg.pilon.txt",  header = FALSE)
+UP05<- fread(file = "final.UP05.gg.pilon.txt",  header = FALSE)
+UP06<- fread(file = "final.UP06.gg.pilon.txt",  header = FALSE)
+UP07<- fread(file = "final.UP07.np.pilon.txt",  header = FALSE)
+UP08<- fread(file = "final.UP08.np.pilon.txt",  header = FALSE)
+UP09<- fread(file = "final.UP09.np.pilon.txt",  header = FALSE)
+UP10<- fread(file = "final.UP10.gg.pilon.txt",  header = FALSE)
+UP11<- fread(file = "final.UP11.gg.pilon.txt",  header = FALSE)
+UP12<- fread(file = "final.UP12.gg.pilon.txt", header = FALSE)
+UP13<- fread(file = "final.UP13.np.pilon.txt",  header = FALSE)
+UP14<- fread(file = "final.UP14.gg.pilon.txt",  header = FALSE)
+UP15<- fread(file = "final.UP15.np.pilon.txt",  header = FALSE)
+UP16<- fread(file = "final.UP16.gg.pilon.txt", , header = FALSE)
+
+colnames(UP01) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP02) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP03) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP04) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP05) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP06) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP07) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP08) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP09) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+
+colnames(UP10) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP11) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP12) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP13) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP14) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP15) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+colnames(UP16) <- c("chrom_1", "start_1", "end_1", "chrom_2", 
+                     "start_2", "end_2", "read_name", "score", 
+                     "strand_1", "strand_2")
+
+
+UP01.t<- trim(UP01)  
+UP02.t<- trim(UP02)  
+UP03.t<- trim(UP03)  
+UP04.t<- trim(UP04)  
+UP05.t<- trim(UP05)  
+UP06.t<- trim(UP06)  
+UP07.t<- trim(UP07)  
+UP08.t<- trim(UP08)  
+UP09.t<- trim(UP09)  
+UP10.t<- trim(UP10)  
+UP11.t<- trim(UP11)  
+UP12.t<- trim(UP12)  
+UP13.t<- trim(UP13)  
+UP14.t<- trim(UP14)  
+UP15.t<- trim(UP15)  
+UP16.t<- trim(UP16)  
+
+
+plot.s<- function(sample = UP09.t, name = nam, ymax = 20000){
+  m<- mean(sample$frag_size)
+  p <- ggplot() +
+  geom_histogram(aes(x = frag_size), binwidth = 1, colour = "black", data = sample) +
+  geom_text(aes(x = 100, y = (ymax - 500)), label = paste("mean fragment size  = ",m,sep = " "))+  
+  scale_x_continuous(limits = c(0,500), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,ymax))+
+  labs(x = "fragment size", y = "Counts") +
+  ggtitle(paste("distribution of transposon sheared fragment lengths of", name, sep = " "))+
+  theme_grey() +
+  theme(plot.margin=unit(c(1,1,1,1),"cm"),
+        legend.position = "bottom",
+        panel.grid.minor = element_line(colour="white", size=0.5),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.text  = element_text(size=18),
+        axis.title = element_text(size = 18, face = "bold")) 
+
+ggsave(paste("C:/Users/marcelo/Dropbox/uptake/Uptake_summer2017/Figures/sample",name,"png", sep = "."), width = 50, height = 30, units = "cm")
+}
+
+nam<- "UP01"
+plot.s(sample = UP01.t, name = nam, ymax = 10000)
+
+nam<- "UP02"
+plot.s(sample = UP02.t, name = nam, ymax = 10000)
+
+nam<- "UP03"
+plot.s(sample = UP03.t, name = nam, ymax = 10000)
+
+nam<- "UP04"
+plot.s(sample = UP04.t, name = nam, ymax = 10000)
+
+nam<- "UP05"
+plot.s(sample = UP05.t, name = nam, ymax = 10000)
+
+nam<- "UP06"
+plot.s(sample = UP06.t, name = nam, ymax = 10000)
+
+nam<- "UP07"
+plot.s(sample = UP07.t, name = nam, ymax = 20000)
+
+nam<- "UP08"
+plot.s(sample = UP08.t, name = nam, ymax = 20000)
+
+nam<- "UP09"
+plot.s(sample = UP09.t, name = nam, ymax = 20000)
+
+nam<- "UP10"
+plot.s(sample = UP10.t, name = nam, ymax = 20000)
+
+nam<- "UP11"
+plot.s(sample = UP11.t, name = nam, ymax = 20000)
+
+nam<- "UP12"
+plot.s(sample = UP12.t, name = nam, ymax = 20000)
+
+nam<- "UP13"
+plot.s(sample = UP13.t, name = nam, ymax = 10000)
+
+nam<- "UP14"
+plot.s(sample = UP14.t, name = nam, ymax = 10000)
+
+nam<- "UP15"
+plot.s(sample = UP15.t, name = nam, ymax = 20000)
+
+nam<- "UP16"
+plot.s(sample = UP16.t, name = nam, ymax = 40000)
+
+
+```
+
+
