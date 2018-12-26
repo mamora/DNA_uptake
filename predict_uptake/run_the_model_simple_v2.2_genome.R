@@ -11,31 +11,27 @@
 library(dplyr)                                                                 
 library(tidyr)                                                                 
 library(data.table)                                                            
-
-
 ################################################################################
 #                          load datasets                                       #
 ################################################################################
 # uptake ratios                                                                
-folder.name <- "./Marcelo_paper_figures_new_order/model/Sept_24_2018/"  
-#read uptake file
+folder.name <- "./Marcelo_paper_figures_new_order/model/Oct_16_2018_2/"  
+# read uptake file
 Uptake.ratio.np <- fread("./datasets/final_datasets/DNA_uptake/Uptake.ratio.np.corrected.csv")      
 # list of USS10
-Up.USS.np.10.list <- fread(here::here("datasets/final_datasets","Uptake.uss.10.list.np.csv")) 
+Up.USS.np.10.list <- fread("./datasets/final_datasets/Uptake.uss.10.list.np.csv") 
 # fragment sizes
-up15.dist1 <- fread(paste(folder.name,"up15.dist_raw_den_class.csv", sep = ""))
-
+#up15.dist1 <- fread(paste(folder.name,"up15.dist_all_frag_sizes.csv", sep = ""))
+up15.dist1 <- fread(paste(folder.name,"up15.dist_size.class.csv", sep = ""))
 
 ###################################################
 #                 Settings                        #
 ###################################################
 # Settings
-settings <- read.csv("./Marcelo_paper_figures_new_order/model/Sept_24_2018/Settings.csv")
+settings <- read.csv("./Marcelo_paper_figures_new_order/model/Oct_16_2018_2/Settings.csv")
 # set the background binding and uptake probabilities          
 b0 = settings$b0
 u0 = settings$u0                                  
-
-
 
 ################################################################################
 #                    circularize the USS list                                  #
@@ -53,7 +49,7 @@ circle.uss.list <- rbind(tail(Up.USS.np.10.list, 10),
 
 # Replace the genomic position corresponding to the pos 16 (keypos) of each uss 
 # by the pretended positions if the genome was larger and a set of negative 
-# positions at the beggining of the genome.                     
+# positions at the begining of the genome.                     
 # This is done to facilitate calculation to find a USS in a circularized genome
 s0 <- head(Up.USS.np.10.list$keypos, 9) #first 9 uss                            
 s1 <- tail(Up.USS.np.10.list$keypos, 10) #last 9 uss                            
@@ -69,28 +65,43 @@ circle.uss.list$keypos <- circle.uss
 ################################################################################
 b = circle.uss.list$keypos # rename USS list as parameter "b"
 
+circle.uss.list$USS.score <- round(circle.uss.list$USS.score, digits = 1)
+
 # load the functions to be used
-source("./Marcelo_paper_figures_new_order/model/Sept_24_2018/model_code_simple_model_v1.1.R")       
+source("./Marcelo_paper_figures_new_order/model/Oct_16_2018_2/model_code_sigmodial_model_v2.R")
 
-up15.dist1$bases <- as.integer(up15.dist1$bases)
 up15.dist1$V1 <- NULL
+# rename columns
+names(up15.dist1)[1] <-"bases"
+names(up15.dist1)[2] <-"ave.density"
 
-# make a vector with genomic positions to be used in the model
-st = 1                                                                      
-end = 100000
-genome <- c(st:end)
+#############################################################################
+#   split the genome in chucks to save results as 100kb individual files    #
+#############################################################################
+# make a vector with genomic positions to be used in the model              #
+st = 1                                                                      #
+end = 1914386                                                               #
+genome <- c(st:end)                                                         #
+                                                                            #
+# split the genome into a 100kb chuck elements of a list                    # 
+t<- ceiling(seq_along(genome)/100000)                                       #
+list.genome<- split(genome, t)                                              #
+#############################################################################
 
-# preallocate the size of the matrix to be used to store predicted uptake
-f.tem <- data.frame(matrix(nrow = length(genome), ncol = length(up15.dist1$bases)))
 
-# For each fragment size in matrix "up15.dist1", calculate predicted uptake for all genomic 
-# positions in vector "genome"
-for (ds in 1:length(up15.dist1$bases)) { 
-tab.1 <- func.model(ds)   
-sum <- sapply(X = tab.1, FUN = sum.total, sim = sim)
-f.tem[,ds] <- sum 
+for(i in 1:length(list.genome)){ 
+  genome<- list.genome[[i]]  # pick a 100kb region chunck
+  exp <- rep(0,length(list.genome[[i]]))  # create an empty vector to preallocate space
+  # For each fragment size in matrix "up15.dist1", calculate predicted uptake for all genomic 
+  # positions in vector "genome"
+  for (ds in 1:length(up15.dist1$bases)) { # for each fragment size
+    # calculate predicted uptake for a given 100kb chunck of the genome
+    exp.1 <- func.model(ds) 
+    exp.2 <- exp.1 * up15.dist1$ave.density[ds] # multiply 
+    exp <- exp + exp.2
+  }
+  # save as 100kb chucks individual files. This predicted uptake is not normalized yet
+write.csv(exp, file = paste(folder.name,"model_sigmodial_100kb",
+                            "np","_class_sizes","small",i,".csv",sep = ""))
 }
-
-write.csv(f.tem, file = paste(folder.name,"simple_model_100kb_np_raw_den_class_2.csv", sep = "")) 
-
 

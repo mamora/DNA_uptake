@@ -376,7 +376,7 @@ write.csv(Uptake.ratio.gg, "./datasets/final_datasets/pacbio.Uptake.ratio.gg.cor
 # load dataframes (OPTIONAL CODE)
 raw.depth.samples.gg<- fread("~/DNA_uptake/datasets/tables/raw.depth.samples.gg.csv") #load new input samples fro UP01   
 raw.depth.inputs.gg<- fread("~/DNA_uptake/datasets/tables/raw.depth.inputs.gg.csv") #load new input samples fro UP01   
-Uptake.ratio.gg<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.gg.csv") #load new input samples fro UP01   
+Uptake.ratio.gg<- fread("./datasets/final_datasets/pacbio.Uptake.ratio.gg.corrected.csv") #load new input samples fro UP01   
 
 dif<- Uptake.ratio.gg.c$ratio_short - Uptake.ratio.gg$ratio_short
 
@@ -387,6 +387,22 @@ summary(dif)
 Uptake.ratio.gg$V1 <- NULL
 raw.depth.inputs.gg$V1 <- NULL
 raw.depth.samples.gg$V1 <- NULL
+
+# function for normalizing predicted uptake
+norm<- function (data = data){
+  h_pe<- mean(data, na.rm = TRUE)
+  s_pe<- (data * 1)/h_pe
+  return(s_pe)
+}
+
+# normalize predicted uptake to a mean of 1
+Uptake.ratio.gg$ratio_short<- norm(data = Uptake.ratio.gg$ratio_short)
+Uptake.ratio.gg$ratio_long<- norm(data = Uptake.ratio.gg$ratio_long)
+
+
+mean(Uptake.ratio.gg$ratio_short, na.rm = TRUE)
+mean(Uptake.ratio.gg$ratio_long, na.rm = TRUE)
+
 
 ##############################################################################################
 

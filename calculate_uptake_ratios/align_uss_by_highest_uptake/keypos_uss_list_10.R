@@ -40,7 +40,7 @@ Uptake.ratio.gg<- fread("~/DNA_uptake/datasets/tables/Uptake.ratio.gg.csv") #loa
 
 Uptake.uss.10.list.np<- read.csv("./datasets/Up.USS.np.10.list.csv")
 
-Uptake.uss.10.list.gg<- read.csv("./datasets/Up.USS.PittGG.10.list.csv")
+Uptake.uss.10.list.gg<- read.csv("./datasets/final_datasets/USS_scores/uptake_model/Up.USS.PittGG.9.5.list.pilon.csv")
 
 
 ###########################################################

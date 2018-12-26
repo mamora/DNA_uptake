@@ -476,6 +476,24 @@ Uptake.ratio.np$V1 <- NULL
 raw.depth.inputs$V1 <- NULL
 raw.depth.samples$V1 <- NULL
 
+# function for normalizing predicted uptake
+norm<- function (data = data){
+  h_pe<- mean(data, na.rm = FALSE)
+  s_pe<- (data * 1)/h_pe
+  return(s_pe)
+}
+
+# normalize predicted uptake to a mean of 1
+Uptake.ratio.np$ratio_short<- norm(data = Uptake.ratio.np$ratio_short)
+Uptake.ratio.np$ratio_long<- norm(data = Uptake.ratio.np$ratio_long)
+
+
+mean(Uptake.ratio.np$ratio_short)
+mean(Uptake.ratio.np$ratio_long)
+
+#read uptake file
+write.csv(Uptake.ratio.np, "./datasets/final_datasets/DNA_uptake/Uptake.ratio.np.corrected.csv")      
+
 ##############################################################################################
 
 #####################################      Some Pretty uptake maps   ###########################
