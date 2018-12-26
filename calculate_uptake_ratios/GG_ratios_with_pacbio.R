@@ -173,7 +173,7 @@ Uptake.ratio.gg$ratio_long<- norm(data = Uptake.ratio.gg$ratio_long)
 mean(Uptake.ratio.gg$ratio_short, na.rm = TRUE)
 mean(Uptake.ratio.gg$ratio_long, na.rm = TRUE)
 
-write.csv(Uptake.ratio.gg, "./datasets/final_datasets/DNA_uptake/Uptake.ratio.gg.csv")
+write.csv(Uptake.ratio.gg, "./datasets/final_datasets/DNA_uptake/Uptake.ratio.gg.pilon.csv")
 
 ##################################################################################################
 # make a normalized depth dataframe and a pseudocount uptake ratio                               #
