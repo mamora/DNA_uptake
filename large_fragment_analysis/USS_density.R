@@ -53,7 +53,7 @@ find.m.ratio.np<- function(x){
 
 
 #####################################################################
-#                     Run the  analysis                             #
+#                     Run the analysis                             #
 #####################################################################
 
 # get NP positions circularized
