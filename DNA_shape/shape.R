@@ -13,7 +13,6 @@ library(ggplot2)
 library(ggpubr)
 
 
-# as if the whole file were copy-pasted to the R command-line
 
 
 ########################
@@ -29,7 +28,7 @@ genome.np <- read.genome(fasta.np) # read fasta with seqinr, then massage
 ########################
 #   load functions     #
 ########################
-# Load the various functions used below from the "pssmFunctions.R" file,
+# Load the various functions used below from the "pssmFunctions1.R" file,
 # as if the whole file were copy-pasted to the R command-line
 source("./helper_functions/pssmFunctions1.R")
 

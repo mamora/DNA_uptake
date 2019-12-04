@@ -118,9 +118,17 @@ p1 <- ggplot(aes(x = size.class, y = ave.density), data = up13.dist_size.class) 
   p1
 
 
+############################
+# normalize to a sum of 1  #
+############################
+  
+sum_all <-  sum(up13.dist_size.class$ave.density)
+  
+up13.dist_size.class$norm_freq <- up13.dist_size.class$ave.density/sum_all
 
-  
-  
-  
-  
+sum(up13.dist_size.class$norm_freq)
 
+NP_large_fragment_class <- data.table(bases = up13.dist_size.class$size.class,
+                                      frequency = up13.dist_size.class$norm_freq)
+
+write.csv(NP_large_fragment_class, paste(folder.name,"NP_large_fragment_class.csv", sep = ""))           #

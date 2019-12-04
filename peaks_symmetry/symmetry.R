@@ -156,7 +156,7 @@ skew.test.m.w<- data.frame(flanks = flanks, pos = al, mean = mean_col.w,  align 
 ###############################################################################################
 #           Make plots to assess symnetry of isolated peaks based on matrix build before      #
 ###############################################################################################
-# Figure 7B
+
 #Important: Both lines should overlap perfectly when the highest point of uptake is found
 p <- ggplot(aes(x = pos, y = mean, colour = align), data = skew.test.w) +
   geom_line() +
@@ -172,7 +172,7 @@ p <- ggplot(aes(x = pos, y = mean, colour = align), data = skew.test.w) +
 
 p
 
-# Figure 7A
+
 p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.w) +
   geom_line() +
   scale_color_manual(values = c("Left" = "dark blue", "centre" = "black","Right" = "violetred3" ), name = "USS alignment") +
@@ -189,7 +189,7 @@ p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.w) +
 
 p
 
-# Figure 7C 
+
 p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.w) +
   geom_line() +
   scale_color_manual(values = c("Left" = "dark blue", "centre" = "black","Right" = "violetred3" ), name = "USS alignment") +
@@ -259,7 +259,7 @@ skew.test.m.c<- data.frame(flanks = flanks, pos = al, mean = mean_col.c,  align 
 #           Make plots to assess symmetry of isolated peaks based on matrix build before      #
 ###############################################################################################
 
-# Figure 8B
+
 #Important: Both lines should overlap perfectly when the highest point of uptake is found
 p <- ggplot(aes(x = pos, y = mean, colour = align), data = skew.test.c) +
   geom_line() +
@@ -275,7 +275,7 @@ p <- ggplot(aes(x = pos, y = mean, colour = align), data = skew.test.c) +
 
 p
 
-# Figure 8A
+
 p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.c) +
   geom_line() +
   scale_color_manual(values = c("Left" = "dark blue", "centre" = "black","Right" = "violetred3" ), name = "USS alignment") +
@@ -292,7 +292,7 @@ p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.c) +
 
 p
 
-# Figure 8C
+
 p <- ggplot(aes(x = flanks, y = mean, colour = align), data = skew.test.c) +
   geom_line() +
   scale_color_manual(values = c("Left" = "dark blue", "centre" = "black","Right" = "violetred3" ), name = "USS alignment") +
